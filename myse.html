@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>永寂神域 - 求生之路2 RPG服务器</title>
+    <style>
+        /* 全局样式 - 黑色背景 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 主标题样式 */
+        .main-title {
+            color: #ffffff;
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 0 15px #4fc3ff, 0 0 30px #0099ff;
+            letter-spacing: 2px;
+        }
+
+        /* 服务器按钮容器 */
+        .server-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* 风格化服务器按钮 */
+        .server-btn {
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            border: 2px solid #0099ff;
+            border-radius: 12px;
+            padding: 22px 20px;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 153, 255, 0.3);
+            text-decoration: none;
+            display: block;
+        }
+
+        /* 按钮悬停效果 */
+        .server-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 153, 255, 0.8);
+            background: linear-gradient(135deg, #0059b3, #0099ff);
+            border-color: #4fc3ff;
+        }
+
+        /* IP地址文字样式 */
+        .server-ip {
+            font-size: 14px;
+            color: #a0d8ff;
+            margin-top: 8px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <!-- 主标题 -->
+    <h1 class="main-title">永寂神域 RPG 战役 网页登录器</h1>
+
+    <!-- 服务器按钮列表 -->
+    <div class="server-container">
+        <a href="steam://connect/111.229.0.95:27020" class="server-btn">
+            永寂神域 RPG 1服
+            <div class="server-ip">IP: connect 111.229.0.95:27020</div>
+        </a>
+
+        <a href="steam://connect/111.229.0.95:27021" class="server-btn">
+            永寂神域 RPG 2服
+            <div class="server-ip">IP: connect 111.229.0.95:27021</div>
+        </a>
+
+        <a href="steam://connect/111.229.0.95:27022" class="server-btn">
+            永寂神域 RPG 3服
+            <div class="server-ip">IP: connect 111.229.0.95:27022</div>
+        </a>
+
+        <a href="steam://connect/111.229.0.95:27023" class="server-btn">
+            永寂神域 RPG 4服
+            <div class="server-ip">IP: connect 111.229.0.95:27023</div>
+        </a>
+    </div>
+</body>
+</html>
