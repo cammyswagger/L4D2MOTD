@@ -337,7 +337,7 @@
         <p><i class="fab fa-steam"></i> 官方指定登录器 · 点击任意服务器直接唤醒Steam加入游戏</p>
     </div>
 
-    <!-- 服务器卡片容器，动态JS生成 以保证数据和样式统一 但也可直接用静态，但动态便于维护 -->
+    <!-- 服务器卡片容器，动态JS生成 以保证数据和样式统一 -->
     <div id="serversContainer" class="servers-grid"></div>
 
     <div class="footer-note">
@@ -351,7 +351,7 @@
 
 <script>
     // ---------- 服务器数据 ----------
-    // 定义所有服务器信息 (名称 + IP + 端口)
+    // 1-4服使用旧IP 111.229.0.95，5-8服用新IP 114.66.33.8
     const servers = [
         {
             name: "永寂神域 RPG 1服",
@@ -377,18 +377,29 @@
             port: "27023",
             fullDisplay: "永寂神域 RPG 4服"
         },
-        // 新增两个服务器端口
         {
             name: "永寂神域 RPG 5服",
-            ip: "111.229.0.95",
+            ip: "114.66.33.8",
             port: "27024",
             fullDisplay: "永寂神域 RPG 5服"
         },
         {
             name: "永寂神域 RPG 6服",
-            ip: "111.229.0.95",
+            ip: "114.66.33.8",
             port: "27025",
             fullDisplay: "永寂神域 RPG 6服"
+        },
+        {
+            name: "永寂神域 RPG 7服",
+            ip: "114.66.33.8",
+            port: "27026",
+            fullDisplay: "永寂神域 RPG 7服"
+        },
+        {
+            name: "永寂神域 RPG 8服",
+            ip: "114.66.33.8",
+            port: "27027",
+            fullDisplay: "永寂神域 RPG 8服"
         }
     ];
 
@@ -407,7 +418,6 @@
     function showToast(message, isError = false) {
         const toast = document.getElementById('toastMsg');
         if (!toast) return;
-        // 清除之前的定时器
         if (toastTimer) clearTimeout(toastTimer);
         toast.textContent = message || (isError ? '⚠️ 复制失败，请手动复制' : '📋 复制成功！');
         if (isError) {
@@ -429,7 +439,6 @@
             await navigator.clipboard.writeText(text);
             showToast(successMsg, false);
         } catch (err) {
-            // fallback 使用 textarea 方式
             const textarea = document.createElement('textarea');
             textarea.value = text;
             document.body.appendChild(textarea);
@@ -443,51 +452,37 @@
     // 连接服务器 (通过 Steam 协议)
     function connectToServer(ip, port, serverName) {
         const steamUrl = getSteamConnectUrl(ip, port);
-        // 友好的控制台输出，同时尝试打开协议
         console.log(`[启动] 尝试连接: ${serverName} | ${steamUrl}`);
-        // 可选: 提示用户即将启动 Steam (由于协议限制会弹出询问)
         showToast(`⚡ 正在启动Steam并连接 ${serverName} ...`, false);
-        // 设置跳转 (注意某些浏览器需要用户交互，已在点击事件中，安全)
         window.location.href = steamUrl;
-        // 备用延时提示，如果2秒后页面未跳转（防止无Steam的情况）
-        setTimeout(() => {
-            // 但是不干扰用户，仅调试
-        }, 500);
     }
 
-    // 渲染服务器卡片 (风格化按钮，独立复制区 + 主体点击连接)
+    // 渲染服务器卡片
     function renderServers() {
         const container = document.getElementById('serversContainer');
         if (!container) return;
 
-        // 清空容器，准备动态渲染
         container.innerHTML = '';
 
         servers.forEach(server => {
-            const { name, ip, port, fullDisplay } = server;
-            // 显示用的ip字符串
+            const { name, ip, port } = server;
             const ipDisplay = `${ip}:${port}`;
             const connectFullCommand = getConnectCommand(ip, port);
             
-            // 创建卡片外层div (模拟风格按钮)
             const card = document.createElement('div');
             card.className = 'server-card';
             
-            // 主体内容区域 (点击连接)
             const mainArea = document.createElement('div');
             mainArea.className = 'card-main';
             
-            // 服务器名称 + 小图标
             const nameSpan = document.createElement('div');
             nameSpan.className = 'server-name';
             nameSpan.innerHTML = `<i class="fas fa-dragon"></i> ${name}`;
             
-            // IP 地址区域 (优雅显示)
             const ipSpan = document.createElement('div');
             ipSpan.className = 'server-ip';
             ipSpan.innerHTML = `<i class="fas fa-network-wired"></i> connect ${ipDisplay}`;
             
-            // 附加小提示 (一键启动)
             const hintSpan = document.createElement('div');
             hintSpan.className = 'connect-hint';
             hintSpan.innerHTML = `<i class="fab fa-steam"></i> 点击卡片 → 自动唤醒Steam`;
@@ -496,24 +491,18 @@
             mainArea.appendChild(ipSpan);
             mainArea.appendChild(hintSpan);
             
-            // 复制按钮 (独立交互)
             const copyButton = document.createElement('div');
             copyButton.className = 'copy-btn';
             copyButton.innerHTML = `<i class="fas fa-copy"></i> 复制 connect 指令`;
-            // 为复制按钮添加点击事件 (阻止冒泡，避免触发卡片连接)
             copyButton.addEventListener('click', (e) => {
-                e.stopPropagation();   // 阻止事件冒泡到父级 .server-card
-                // 复制完整的 connect 命令，例如 "connect 111.229.0.95:27020"
+                e.stopPropagation();
                 copyToClipboard(connectFullCommand, `✅ 已复制: ${connectFullCommand}`);
             });
             
-            // 将主区域和复制按钮加入卡片
             card.appendChild(mainArea);
             card.appendChild(copyButton);
             
-            // 卡片主体点击事件 (连接服务器)
             card.addEventListener('click', (e) => {
-                // 防止点击复制按钮时二次触发 (已经stopPropagation, 但安全保险)
                 if (e.target.closest('.copy-btn')) return;
                 connectToServer(ip, port, name);
             });
@@ -522,23 +511,17 @@
         });
     }
 
-    // 额外增加一个连接异常处理的友好监听: 很多浏览器会阻止steam协议直接跳转但基本都能工作
-    // 为了更加贴合“接口接入Steam求生之路2游戏IP”我们同时添加一个隐藏的“检测Steam就绪”提示，无伤大雅
     function initPage() {
         renderServers();
-        // 可选：添加一点控制台艺术信息
         console.log("%c永寂神域·战役登录器 | 已装载全部服务器入口 | 点击卡片即用steam://connect协议", "color: #0ff; font-size: 14px;");
-        // 针对移动端显示tips: 如果设备不支持steam协议，提示
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         if (isMobile) {
-            // 只是提醒, 移动端steam可能不支持, 但可以复制ip在pc上连接，不影响体验
             setTimeout(() => {
                 showToast("💡 手机端建议复制指令到PC端Steam控制台使用", false);
             }, 1000);
         }
     }
 
-    // 当DOM加载完成后执行
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initPage);
     } else {
