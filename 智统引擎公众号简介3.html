@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>智统引擎 · AI教育服务商</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== 与之前相同的样式，保持科技感 ===== */
+        :root {
+            --bg-primary: #070b17;
+            --bg-secondary: #0e1527;
+            --bg-card: rgba(16, 26, 48, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --border-glow: rgba(0, 212, 255, 0.25);
+            --text-primary: #f0f4ff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --cyan: #00d4ff;
+            --cyan-dim: rgba(0, 212, 255, 0.15);
+            --purple: #7b2ffc;
+            --purple-dim: rgba(123, 47, 252, 0.15);
+            --pink: #ff3d8a;
+            --gold: #ffd93d;
+            --gradient-main: linear-gradient(135deg, var(--cyan), var(--purple));
+            --gradient-glow: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(123, 47, 252, 0.3));
+            --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.15);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --font-display: 'Orbitron', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: 10px;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 24px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(7, 11, 23, 0.75);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+            transition: var(--transition);
+        }
+        .navbar.scrolled {
+            background: rgba(7, 11, 23, 0.92);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--gradient-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #fff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.25);
+            flex-shrink: 0;
+        }
+        .logo span {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: var(--font-body);
+            position: relative;
+            white-space: nowrap;
+        }
+        .nav-link i {
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+        .nav-link .arrow {
+            font-size: 0.6rem;
+            margin-left: 2px;
+            transition: var(--transition);
+        }
+        .nav-item:hover .nav-link .arrow,
+        .nav-item.open .nav-link .arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            min-width: 560px;
+            padding: 20px 24px;
+            background: rgba(10, 16, 34, 0.96);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border-radius: var(--radius);
+            border: 1px solid rgba(0, 212, 255, 0.12);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 212, 255, 0.05);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            z-index: 100;
+        }
+        .dropdown.cols-3 {
+            min-width: 660px;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        .nav-item:hover .dropdown,
+        .nav-item.open .dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: var(--font-body);
+            text-align: left;
+            width: 100%;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+        .dropdown-item .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            transition: var(--transition);
+        }
+        .dropdown-item:hover .icon {
+            background: var(--gradient-main);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        .dropdown-item .info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .dropdown-item .info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            z-index: 1001;
+            touch-action: manipulation;
+        }
+        .hamburger span {
+            display: block;
+            width: 26px;
+            height: 2.5px;
+            border-radius: 4px;
+            background: var(--text-primary);
+            transition: var(--transition);
+            transform-origin: center;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(7.5px) rotate(45deg);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-7.5px) rotate(-45deg);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            background: rgba(7, 11, 23, 0.97);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 88px 28px 40px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            animation: fadeSlide 0.3s ease;
+        }
+        .mobile-menu.open {
+            display: flex;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-nav-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 8px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: none;
+            border: none;
+            width: 100%;
+            font-family: var(--font-body);
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .mobile-nav-link:active {
+            color: var(--text-primary);
+        }
+        .mobile-nav-link i {
+            transition: var(--transition);
+            font-size: 0.8rem;
+        }
+        .mobile-nav-link.open i {
+            transform: rotate(180deg);
+        }
+
+        .mobile-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding-left: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .mobile-dropdown.open {
+            max-height: 600px;
+            padding-bottom: 16px;
+        }
+        .mobile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-secondary);
+            background: var(--bg-glass);
+            font-size: 0.85rem;
+            touch-action: manipulation;
+            border: none;
+            width: 100%;
+            font-family: var(--font-body);
+            text-align: left;
+            cursor: pointer;
+        }
+        .mobile-dropdown-item:active {
+            background: var(--cyan-dim);
+            color: var(--text-primary);
+        }
+        .mobile-dropdown-item .icon {
+            font-size: 0.9rem;
+            width: 28px;
+            text-align: center;
+            color: var(--cyan);
+        }
+
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 820px;
+            animation: fadeUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px 6px 10px;
+            border-radius: 100px;
+            background: var(--cyan-dim);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--cyan);
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(4px);
+        }
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cyan);
+            animation: pulse-dot 1.8s infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.7);
+            }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(2.6rem, 8vw, 4.6rem);
+            line-height: 1.08;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+        .hero h1 .highlight {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero h1 .highlight-2 {
+            color: var(--gold);
+            -webkit-text-fill-color: var(--gold);
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 1.4vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 580px;
+            margin-bottom: 36px;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-family: var(--font-body);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            touch-action: manipulation;
+        }
+        .btn-primary {
+            background: var(--gradient-main);
+            color: #fff;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.25);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.4);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-outline:hover {
+            background: var(--bg-glass);
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.08);
+        }
+
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 60px;
+            background: var(--gradient-glow);
+            filter: blur(20px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+        .btn-glow:hover::after {
+            opacity: 1;
+        }
+
+        .section {
+            padding: 80px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+        .section-header .label {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            background: var(--cyan-dim);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            letter-spacing: -0.5px;
+        }
+        .section-header h2 span {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-header p {
+            color: var(--text-secondary);
+            max-width: 620px;
+            margin: 12px auto 0;
+            font-size: 1rem;
+        }
+
+        .business-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .business-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 32px 24px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .business-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-main);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .business-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 212, 255, 0.15);
+            box-shadow: var(--shadow-glow);
+        }
+        .business-card:hover::before {
+            opacity: 1;
+        }
+        .business-card .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 18px;
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            transition: var(--transition);
+        }
+        .business-card:hover .icon {
+            background: var(--gradient-main);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.25);
+        }
+        .business-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+        .business-card p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .business-card .link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--cyan);
+            text-decoration: none;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-body);
+            padding: 0;
+        }
+        .business-card .link:hover {
+            gap: 12px;
+            color: var(--text-primary);
+        }
+
+        .stats-section {
+            padding: 60px 0 80px;
+            position: relative;
+            z-index: 1;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            text-align: center;
+        }
+        .stat-item {
+            padding: 28px 16px;
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+        }
+        .stat-item:hover {
+            border-color: rgba(0, 212, 255, 0.12);
+            box-shadow: var(--shadow-glow);
+        }
+        .stat-item .number {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        .stat-item .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer {
+            padding: 40px 0 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+        .footer .brand {
+            color: var(--cyan);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 1200px) {
+            .business-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dropdown {
+                min-width: 420px;
+                grid-template-columns: 1fr 1fr;
+            }
+            .dropdown.cols-3 {
+                min-width: 480px;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .nav-menu {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .dropdown {
+                display: none !important;
+            }
+            .hero {
+                min-height: auto;
+                padding: 100px 0 60px;
+            }
+            .hero h1 {
+                font-size: clamp(2.2rem, 6vw, 3.2rem);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app {
+                padding: 0 16px;
+            }
+            .navbar {
+                padding: 0 16px;
+                height: 64px;
+            }
+            .logo {
+                font-size: 1rem;
+            }
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .business-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .stat-item {
+                padding: 20px 12px;
+            }
+
+            .mobile-dropdown {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .hero-actions .btn {
+                justify-content: center;
+            }
+
+            .section {
+                padding: 50px 0;
+            }
+            .section-header {
+                margin-bottom: 32px;
+            }
+            .business-card {
+                padding: 24px 18px;
+            }
+
+            .mobile-menu {
+                padding: 80px 20px 30px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .stat-item .number {
+                font-size: 1.8rem;
+            }
+        }
+
+        .text-gradient {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link,
+        .hamburger,
+        .mobile-nav-link,
+        .mobile-dropdown-item,
+        .dropdown-item,
+        .btn {
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        .nav-item.active .nav-link {
+            color: var(--cyan);
+        }
+        .nav-item.active .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+    <div class="grid-overlay"></div>
+
+    <!-- 导航 -->
+    <nav class="navbar" id="navbar">
+        <a href="#" class="logo">
+            <span class="logo-icon"><i class="fas fa-brain"></i></span>
+            <span>智统引擎</span>
+        </a>
+
+        <ul class="nav-menu" id="navMenu">
+            <li class="nav-item active">
+                <a href="#" class="nav-link"><i class="fas fa-home"></i> 首页</a>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" aria-haspopup="true">
+                    <i class="fas fa-rocket"></i> 核心业务
+                    <i class="fas fa-chevron-down arrow"></i>
+                </button>
+                <div class="dropdown" role="menu">
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+                        <span class="info">
+                            <h4>AI课程体系</h4>
+                            <p>标准化课程交付，覆盖工具实操、漫剧、AIGC创业</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-chart-simple"></i></span>
+                        <span class="info">
+                            <h4>投流获客</h4>
+                            <p>巨量引擎AI教育类目合规投流，低成本精准获客</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-certificate"></i></span>
+                        <span class="info">
+                            <h4>导师认证</h4>
+                            <p>专业导师认证体系，构建AI教育人才梯队</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-handshake"></i></span>
+                        <span class="info">
+                            <h4>产业生态</h4>
+                            <p>多级服务商分润，共建AI教育新生态</p>
+                        </span>
+                    </a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" aria-haspopup="true">
+                    <i class="fas fa-cubes"></i> 招商合作
+                    <i class="fas fa-chevron-down arrow"></i>
+                </button>
+                <div class="dropdown cols-3" role="menu">
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-users"></i></span>
+                        <span class="info">
+                            <h4>机构加盟</h4>
+                            <p>赋能教育机构转型AI培训</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-user-plus"></i></span>
+                        <span class="info">
+                            <h4>个人创业</h4>
+                            <p>提供全套运营与投流支持</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-globe"></i></span>
+                        <span class="info">
+                            <h4>渠道落地</h4>
+                            <p>区域服务商，共享产业红利</p>
+                        </span>
+                    </a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" aria-haspopup="true">
+                    <i class="fas fa-flag"></i> 关于我们
+                    <i class="fas fa-chevron-down arrow"></i>
+                </button>
+                <div class="dropdown" role="menu">
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-building"></i></span>
+                        <span class="info">
+                            <h4>公司介绍</h4>
+                            <p>巨量引擎官方授权服务商</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-bolt"></i></span>
+                        <span class="info">
+                            <h4>资质优势</h4>
+                            <p>火山引擎生态合作伙伴</p>
+                        </span>
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon"><i class="fas fa-newspaper"></i></span>
+                        <span class="info">
+                            <h4>动态资讯</h4>
+                            <p>行业峰会与培训活动</p>
+                        </span>
+                    </a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link"><i class="fas fa-envelope"></i> 联系</a>
+            </li>
+        </ul>
+
+        <button class="hamburger" id="hamburger" aria-label="菜单">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- 移动端菜单 -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-nav-item">
+            <a href="#" class="mobile-nav-link"><i class="fas fa-home"></i> 首页</a>
+        </div>
+        <div class="mobile-nav-item">
+            <button class="mobile-nav-link" data-target="mob-business">
+                <span><i class="fas fa-rocket"></i> 核心业务</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="mobile-dropdown" id="mob-business">
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-graduation-cap"></i></span> AI课程体系</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-chart-simple"></i></span> 投流获客</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-certificate"></i></span> 导师认证</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-handshake"></i></span> 产业生态</a>
+            </div>
+        </div>
+        <div class="mobile-nav-item">
+            <button class="mobile-nav-link" data-target="mob-invest">
+                <span><i class="fas fa-cubes"></i> 招商合作</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="mobile-dropdown" id="mob-invest">
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-users"></i></span> 机构加盟</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-user-plus"></i></span> 个人创业</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-globe"></i></span> 渠道落地</a>
+            </div>
+        </div>
+        <div class="mobile-nav-item">
+            <button class="mobile-nav-link" data-target="mob-about">
+                <span><i class="fas fa-flag"></i> 关于我们</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="mobile-dropdown" id="mob-about">
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-building"></i></span> 公司介绍</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-bolt"></i></span> 资质优势</a>
+                <a href="#" class="mobile-dropdown-item"><span class="icon"><i class="fas fa-newspaper"></i></span> 动态资讯</a>
+            </div>
+        </div>
+        <div class="mobile-nav-item">
+            <a href="#" class="mobile-nav-link"><i class="fas fa-envelope"></i> 联系</a>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <main class="app">
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    <span>巨量引擎官方授权 · 火山引擎生态合作伙伴</span>
+                </div>
+                <h1>
+                    <span class="highlight">智统引擎</span><br />
+                    AI教育 <span class="highlight-2">产业赋能</span> 平台
+                </h1>
+                <p>
+                    专注AI教育培训垂直赛道，提供合规投流获客、标准化课程交付、导师认证及多级分润体系。
+                    助力教育机构、创业者、流量团队低成本获客、合规经营、多元盈利。
+                </p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-primary btn-glow">
+                        <i class="fas fa-arrow-right"></i> 合作咨询
+                    </a>
+                    <a href="#" class="btn btn-outline">
+                        <i class="fas fa-play-circle"></i> 了解方案
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心业务 -->
+        <section class="section" id="business">
+            <div class="section-header">
+                <div class="label"><i class="fas fa-bolt"></i> 核心优势</div>
+                <h2>构建 <span>AI教育</span> 全链路赋能</h2>
+                <p>依托官方资质与垂直深耕，破解传统培训招生难、流量贵、盈利单一痛点</p>
+            </div>
+
+            <div class="business-grid">
+                <div class="business-card">
+                    <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                    <h3>标准化课程体系</h3>
+                    <p>覆盖AI工具实操、AI漫剧创作、AIGC创业、TikTok出海等热门赛道，配套完整课件与教学支持。</p>
+                    <button class="link">了解课程 <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="business-card">
+                    <div class="icon"><i class="fas fa-chart-simple"></i></div>
+                    <h3>合规投流获客</h3>
+                    <p>巨量引擎AI教育类目专属投流资质，精准触达目标学员，大幅降低招生成本，提升转化效率。</p>
+                    <button class="link">获取方案 <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="business-card">
+                    <div class="icon"><i class="fas fa-certificate"></i></div>
+                    <h3>导师认证体系</h3>
+                    <p>专业认证流程，培养AI教育讲师人才，保障教学质量，构建可持续发展的师资生态。</p>
+                    <button class="link">申请认证 <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="business-card">
+                    <div class="icon"><i class="fas fa-handshake"></i></div>
+                    <h3>产业聚合生态</h3>
+                    <p>多级服务商分润机制，赋能机构转型、个人创业、渠道落地，共享AI教育产业红利。</p>
+                    <button class="link">加入生态 <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据统计 -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="number" data-count="300">0</div>
+                    <div class="label">合作机构</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" data-count="1200">0</div>
+                    <div class="label">认证导师</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" data-count="50">0</div>
+                    <div class="label">覆盖城市</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" data-count="98.5">0</div>
+                    <div class="label">学员满意度 (%)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 招商引流标语 -->
+        <section style="padding: 20px 0 60px; text-align: center; position: relative; z-index:1;">
+            <div style="max-width: 800px; margin: 0 auto; background: var(--bg-card); border-radius: var(--radius); padding: 40px 30px; border: 1px solid rgba(0,212,255,0.1);">
+                <h3 style="font-family: var(--font-display); font-size: 1.6rem; margin-bottom: 12px;">
+                    <span class="text-gradient">抖音独家AI教育投流资质</span> 赋能平台
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 1rem; max-width: 600px; margin: 0 auto 24px;">
+                    打破传统高拨比、弱流量、单盈利困境，提供官方合规账户、运营体系、分润机制，共建AI教育新生态。
+                </p>
+                <a href="#" class="btn btn-primary btn-glow" style="font-size:0.9rem;">
+                    <i class="fas fa-handshake"></i> 立即合作
+                </a>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>
+                <span class="brand">智统引擎</span> &nbsp;·&nbsp; 巨量引擎AI教育服务商 &nbsp;·&nbsp;
+                © 2026 广西智统引擎科技有限公司
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript (与之前相同，内容已适配) -->
+    <script>
+        (function() {
+            'use strict';
+
+            // 粒子背景
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            let particles = [];
+            const MAX_PARTICLES = 90;
+            const CONNECTION_DIST = 140;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.vx = (Math.random() - 0.5) * 0.35;
+                    this.vy = (Math.random() - 0.5) * 0.35;
+                    this.radius = Math.random() * 1.8 + 0.8;
+                    this.opacity = Math.random() * 0.5 + 0.2;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.x < 0 || this.x > w) this.vx *= -1;
+                    if (this.y < 0 || this.y > h) this.vy *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 212, 255, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < MAX_PARTICLES; i++) {
+                    particles.push(new Particle());
+                }
+            }
+            initParticles();
+
+            function drawConnections() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < CONNECTION_DIST) {
+                            const alpha = (1 - dist / CONNECTION_DIST) * 0.25;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            let mouse = { x: null, y: null };
+            canvas.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+            canvas.addEventListener('mouseleave', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, w, h);
+                if (mouse.x !== null) {
+                    for (const p of particles) {
+                        const dx = p.x - mouse.x;
+                        const dy = p.y - mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 200 && dist > 1) {
+                            const force = 0.02;
+                            p.vx -= (dx / dist) * force * 0.5;
+                            p.vy -= (dy / dist) * force * 0.5;
+                        }
+                    }
+                }
+                for (const p of particles) {
+                    p.update();
+                    p.draw();
+                }
+                drawConnections();
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                resize();
+                for (const p of particles) {
+                    p.x = Math.random() * w;
+                    p.y = Math.random() * h;
+                }
+            });
+
+            // 导航栏滚动效果
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 20) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }, { passive: true });
+
+            // 桌面下拉菜单交互
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                const link = item.querySelector('.nav-link');
+                const dropdown = item.querySelector('.dropdown');
+                if (!dropdown) return;
+
+                link.addEventListener('click', function(e) {
+                    if (!dropdown) return;
+                    e.preventDefault();
+                    const isOpen = item.classList.contains('open');
+                    navItems.forEach(other => {
+                        if (other !== item) other.classList.remove('open');
+                    });
+                    if (isOpen) {
+                        item.classList.remove('open');
+                    } else {
+                        item.classList.add('open');
+                    }
+                });
+
+                item.addEventListener('mouseenter', function() {
+                    if (window.innerWidth > 992) {
+                        navItems.forEach(other => {
+                            if (other !== item) other.classList.remove('open');
+                        });
+                        item.classList.add('open');
+                    }
+                });
+                item.addEventListener('mouseleave', function() {
+                    if (window.innerWidth > 992) {
+                        setTimeout(() => {
+                            if (!item.matches(':hover') && !dropdown.matches(':hover')) {
+                                item.classList.remove('open');
+                            }
+                        }, 100);
+                    }
+                });
+                dropdown.addEventListener('mouseenter', function() {
+                    if (window.innerWidth > 992) {
+                        item.classList.add('open');
+                    }
+                });
+                dropdown.addEventListener('mouseleave', function() {
+                    if (window.innerWidth > 992) {
+                        setTimeout(() => {
+                            if (!item.matches(':hover') && !dropdown.matches(':hover')) {
+                                item.classList.remove('open');
+                            }
+                        }, 100);
+                    }
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav-item')) {
+                    navItems.forEach(item => item.classList.remove('open'));
+                }
+            });
+
+            // 移动端菜单
+            const hamburger = document.getElementById('hamburger');
+            const mobileMenu = document.getElementById('mobileMenu');
+            let mobileOpen = false;
+
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileOpen = !mobileOpen;
+                this.classList.toggle('active');
+                mobileMenu.classList.toggle('open');
+                this.setAttribute('aria-expanded', mobileOpen);
+                document.body.style.overflow = mobileOpen ? 'hidden' : '';
+            });
+
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link[data-target]');
+            mobileNavLinks.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.dataset.target;
+                    const target = document.getElementById(targetId);
+                    if (!target) return;
+                    const isOpen = target.classList.contains('open');
+                    const parent = this.closest('.mobile-nav-item');
+                    const siblings = parent.parentElement.querySelectorAll('.mobile-nav-item');
+                    siblings.forEach(sib => {
+                        const dropdown = sib.querySelector('.mobile-dropdown');
+                        const link = sib.querySelector('.mobile-nav-link');
+                        if (dropdown && dropdown !== target) {
+                            dropdown.classList.remove('open');
+                            if (link) link.classList.remove('open');
+                        }
+                    });
+                    if (isOpen) {
+                        target.classList.remove('open');
+                        this.classList.remove('open');
+                    } else {
+                        target.classList.add('open');
+                        this.classList.add('open');
+                    }
+                });
+            });
+
+            const mobileDropdownItems = document.querySelectorAll('.mobile-dropdown-item');
+            mobileDropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    mobileOpen = false;
+                    hamburger.classList.remove('active');
+                    mobileMenu.classList.remove('open');
+                    document.body.style.overflow = '';
+                });
+            });
+            const directLinks = document.querySelectorAll('.mobile-nav-link:not([data-target])');
+            directLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileOpen = false;
+                    hamburger.classList.remove('active');
+                    mobileMenu.classList.remove('open');
+                    document.body.style.overflow = '';
+                });
+            });
+
+            // 统计数字动画
+            const statNumbers = document.querySelectorAll('.stat-item .number');
+            let counted = false;
+
+            function animateNumber(el) {
+                const target = parseFloat(el.dataset.count);
+                const isFloat = target % 1 !== 0;
+                const duration = 1600;
+                const startTime = performance.now();
+
+                function update(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = 1 - Math.pow(1 - progress, 3);
+                    let current = target * ease;
+                    if (isFloat) {
+                        current = current.toFixed(1);
+                    } else {
+                        current = Math.floor(current);
+                    }
+                    el.textContent = current + (isFloat ? '' : '');
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    } else {
+                        el.textContent = target + (isFloat ? '' : '');
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                if (counted) return;
+                for (const entry of entries) {
+                    if (entry.isIntersecting) {
+                        counted = true;
+                        statNumbers.forEach(el => animateNumber(el));
+                        observer.disconnect();
+                        break;
+                    }
+                }
+            }, { threshold: 0.4 });
+
+            statNumbers.forEach(el => observer.observe(el));
+
+            // 业务卡片按钮反馈
+            document.querySelectorAll('.business-card .link').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.style.color = '#00d4ff';
+                    setTimeout(() => { this.style.color = ''; }, 300);
+                });
+            });
+
+            // 键盘ESC关闭
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    navItems.forEach(item => item.classList.remove('open'));
+                    if (mobileOpen) {
+                        mobileOpen = false;
+                        hamburger.classList.remove('active');
+                        mobileMenu.classList.remove('open');
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
