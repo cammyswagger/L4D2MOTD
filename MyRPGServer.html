@@ -337,7 +337,7 @@
         <p><i class="fab fa-steam"></i> 官方指定登录器 · 点击任意服务器直接唤醒Steam加入游戏</p>
     </div>
 
-    <!-- 服务器卡片容器，动态JS生成 以保证数据和样式统一 -->
+    <!-- 服务器卡片容器，动态JS生成 -->
     <div id="serversContainer" class="servers-grid"></div>
 
     <div class="footer-note">
@@ -351,7 +351,7 @@
 
 <script>
     // ---------- 服务器数据 ----------
-    // 1-4服使用旧IP 111.229.0.95，5-8服用新IP 114.66.33.8
+    // 1-4服 旧IP，5-8服 新IP，9服 本地服务器（IP隐藏）
     const servers = [
         {
             name: "永寂神域 RPG 1服",
@@ -379,27 +379,36 @@
         },
         {
             name: "永寂神域 RPG 5服",
-            ip: "114.66.33.8",
+            ip: "111.229.0.95",
             port: "27024",
             fullDisplay: "永寂神域 RPG 5服"
         },
         {
-            name: "永寂神域 RPG 6服",
-            ip: "114.66.33.8",
+            name: "永寂神域 RPG 6服 ",
+            ip: "111.229.0.95",
             port: "27025",
             fullDisplay: "永寂神域 RPG 6服"
         },
         {
-            name: "永寂神域 RPG 7服",
+            name: "永寂神域 RPG 7服待开放",
             ip: "114.66.33.8",
+            hideIp: true,
             port: "27026",
-            fullDisplay: "永寂神域 RPG 7服"
+            fullDisplay: "永寂神域 RPG 7服待开放"
         },
         {
-            name: "永寂神域 RPG 8服",
+            name: "永寂神域 RPG 8服待开放",
             ip: "114.66.33.8",
+            hideIp: true,
             port: "27027",
-            fullDisplay: "永寂神域 RPG 8服"
+            fullDisplay: "永寂神域 RPG 8服待开放"
+        },
+        {
+            name: "永寂神域 RPG 测试服待开放",
+            ip: "192.168.1.7",
+            port: "27015",
+            hideIp: true,      // 标记隐藏IP显示
+            fullDisplay: "永寂神域 RPG 测试服"
         }
     ];
 
@@ -465,8 +474,8 @@
         container.innerHTML = '';
 
         servers.forEach(server => {
-            const { name, ip, port } = server;
-            const ipDisplay = `${ip}:${port}`;
+            const { name, ip, port, hideIp } = server;
+            const ipDisplay = hideIp ? "局域网服务器" : `${ip}:${port}`;
             const connectFullCommand = getConnectCommand(ip, port);
             
             const card = document.createElement('div');
@@ -481,7 +490,12 @@
             
             const ipSpan = document.createElement('div');
             ipSpan.className = 'server-ip';
-            ipSpan.innerHTML = `<i class="fas fa-network-wired"></i> connect ${ipDisplay}`;
+            // 如果隐藏IP，则不显示真实IP，只显示占位符
+            if (hideIp) {
+                ipSpan.innerHTML = `<i class="fas fa-laptop"></i> ${ipDisplay}`;
+            } else {
+                ipSpan.innerHTML = `<i class="fas fa-network-wired"></i> connect ${ipDisplay}`;
+            }
             
             const hintSpan = document.createElement('div');
             hintSpan.className = 'connect-hint';
