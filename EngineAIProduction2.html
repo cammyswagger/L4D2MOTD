@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>广西智统引擎科技 · AI教育全域数字化赋能</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0B1A33;
+            --primary-light: #1A3150;
+            --accent: #3B82F6;
+            --accent-light: #60A5FA;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --gradient-main: linear-gradient(145deg, #0B1A33 0%, #132B4A 100%);
+            --gradient-accent: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            --text-white: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-dark: #0F172A;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --shadow-soft: 0 20px 60px -12px rgba(0, 0, 0, 0.6);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --radius-lg: 32px;
+            --radius-md: 20px;
+            --radius-sm: 12px;
+            --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--primary);
+            color: var(--text-white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
+        }
+
+        /* ===== UTILITY ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            background: rgba(59, 130, 246, 0.12);
+            padding: 6px 16px;
+            border-radius: 100px;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            backdrop-filter: blur(4px);
+            margin-bottom: 16px;
+        }
+
+        .section-tag .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+        .section-title .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-sub {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        .section-sub.centered {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* ===== GLOW ORBS ===== */
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+            animation: float-orb 20s infinite alternate ease-in-out;
+        }
+        .glow-orb--1 {
+            width: 600px;
+            height: 600px;
+            top: -10%;
+            right: -10%;
+            background: #3B82F6;
+            opacity: 0.12;
+        }
+        .glow-orb--2 {
+            width: 500px;
+            height: 500px;
+            bottom: -5%;
+            left: -8%;
+            background: #8B5CF6;
+            opacity: 0.08;
+            animation-delay: -6s;
+        }
+        .glow-orb--3 {
+            width: 400px;
+            height: 400px;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #06B6D4;
+            opacity: 0.05;
+            animation-delay: -12s;
+        }
+
+        @keyframes float-orb {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -40px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 30px) scale(0.9);
+            }
+            100% {
+                transform: translate(10px, -10px) scale(1.05);
+            }
+        }
+
+        /* ===== HEADER / NAV ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            background: rgba(11, 26, 51, 0.72);
+            backdrop-filter: blur(20px) saturate(1.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+        .header.scrolled {
+            background: rgba(11, 26, 51, 0.92);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-white);
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--gradient-accent);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+        }
+        .logo span {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-accent);
+            transition: var(--transition);
+        }
+        .nav-links a:hover {
+            color: var(--text-white);
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .nav-cta {
+            background: var(--gradient-accent);
+            color: #fff !important;
+            padding: 8px 24px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+        }
+        .nav-cta::after {
+            display: none !important;
+        }
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(59, 130, 246, 0.4);
+            color: #fff !important;
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+            background: transparent;
+            border: none;
+        }
+        .mobile-toggle span {
+            width: 28px;
+            height: 2px;
+            background: var(--text-white);
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        .mobile-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .mobile-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .mobile-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 140px 0 80px;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            padding: 6px 18px 6px 10px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent-light);
+            margin-bottom: 24px;
+            backdrop-filter: blur(4px);
+        }
+        .hero-badge .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22D3EE;
+            animation: pulse-dot 1.8s infinite;
+        }
+        .hero h1 {
+            font-size: clamp(2.6rem, 6.5vw, 4.2rem);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+        }
+        .hero h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 520px;
+            line-height: 1.8;
+            margin-bottom: 36px;
+        }
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gradient-accent);
+            color: #fff;
+            padding: 14px 36px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.45);
+        }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-white);
+            padding: 14px 36px;
+            border-radius: 100px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .hero-visual {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            width: 100%;
+            max-width: 480px;
+        }
+        .hero-grid-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 24px 20px;
+            transition: var(--transition);
+            text-align: center;
+        }
+        .hero-grid-item:hover {
+            transform: translateY(-6px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+        .hero-grid-item .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .hero-grid-item h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .hero-grid-item p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .hero-stats .stat h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-stats .stat p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* ===== SECTION COMMON ===== */
+        section {
+            padding: 80px 0;
+            position: relative;
+            z-index: 1;
+        }
+        section:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .section-header {
+            margin-bottom: 56px;
+        }
+
+        /* ===== ABOUT / 品牌初心 ===== */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+        .about-text p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .about-text p strong {
+            color: var(--text-white);
+        }
+        .about-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .about-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 24px 20px;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+        }
+        .about-card:hover {
+            border-color: rgba(59, 130, 246, 0.25);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+        .about-card .emoji {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .about-card h5 {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .about-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* ===== BUSINESS / 核心业务 ===== */
+        .business-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .business-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 32px 28px;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+            position: relative;
+            overflow: hidden;
+        }
+        .business-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-accent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .business-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-card);
+        }
+        .business-card:hover::before {
+            opacity: 1;
+        }
+        .business-card .icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .business-card .badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 12px;
+            border-radius: 100px;
+            margin-bottom: 10px;
+        }
+        .business-card h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .business-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .business-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .business-card ul li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .business-card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* ===== STRENGTH / 品牌实力 ===== */
+        .strength-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .strength-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 36px 28px;
+            text-align: center;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+        }
+        .strength-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-card);
+        }
+        .strength-card .num {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .strength-card h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .strength-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* ===== VISION / 未来愿景 ===== */
+        .vision-wrap {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 56px 48px;
+            backdrop-filter: blur(4px);
+            position: relative;
+            overflow: hidden;
+        }
+        .vision-wrap::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.06), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .vision-wrap .content {
+            position: relative;
+            z-index: 1;
+        }
+        .vision-wrap .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+        }
+        .vision-wrap p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            max-width: 640px;
+        }
+        .vision-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+        .vision-tags span {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .vision-tags span:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.2);
+            color: var(--text-white);
+        }
+
+        .vision-footer {
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        .vision-footer .tagline {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        .vision-footer .tagline span {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .vision-footer .copy {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 40px 0 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            text-align: center;
+        }
+        .footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .footer .brand {
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .hero-stats {
+                justify-content: center;
+            }
+            .hero-grid {
+                max-width: 380px;
+                margin: 0 auto;
+            }
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+            .about-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+            .business-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .strength-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--primary-light);
+                flex-direction: column;
+                justify-content: center;
+                gap: 24px;
+                padding: 40px;
+                transition: var(--transition);
+                border-left: 1px solid rgba(255, 255, 255, 0.06);
+                backdrop-filter: blur(20px);
+            }
+            .nav-links.open {
+                right: 0;
+            }
+            .mobile-toggle {
+                display: flex;
+                z-index: 1001;
+            }
+            .hero {
+                padding: 120px 0 60px;
+                min-height: auto;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr 1fr;
+                max-width: 320px;
+            }
+            .hero-stats {
+                flex-wrap: wrap;
+                gap: 24px;
+                justify-content: center;
+            }
+            .about-cards {
+                grid-template-columns: 1fr;
+            }
+            .business-grid {
+                grid-template-columns: 1fr;
+            }
+            .strength-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .vision-wrap {
+                padding: 32px 24px;
+            }
+            .vision-footer {
+                flex-direction: column;
+                text-align: center;
+            }
+            section {
+                padding: 56px 0;
+            }
+            .section-header {
+                margin-bottom: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .hero-grid-item {
+                padding: 16px 12px;
+            }
+            .hero-grid-item .icon {
+                font-size: 1.4rem;
+            }
+            .strength-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+            .hero-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .container {
+                padding: 0 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== GLOW ORBS ===== -->
+    <div class="glow-orb glow-orb--1"></div>
+    <div class="glow-orb glow-orb--2"></div>
+    <div class="glow-orb glow-orb--3"></div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="header">
+        <div class="container">
+            <a href="#" class="logo">
+                <div class="logo-icon">智</div>
+                广西<span>智统引擎</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#about">品牌初心</a></li>
+                <li><a href="#business">核心业务</a></li>
+                <li><a href="#strength">品牌实力</a></li>
+                <li><a href="#vision">未来愿景</a></li>
+                <li><a href="#contact" class="nav-cta">合作咨询</a></li>
+            </ul>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="菜单">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="pulse"></span>
+                    智启新境 · 数引未来
+                </div>
+                <h1>
+                    深耕 <span class="highlight">AI 教育</span><br />
+                    全域数字化赋能
+                </h1>
+                <p>
+                    依托巨量生态全域流量优势，聚焦 AI 教育垂直赛道，
+                    以技术为基石、以流量为核心、以赋能为初心，
+                    打造西南地区极具专业度与公信力的 AI 教育数字化服务商。
+                </p>
+                <div class="hero-actions">
+                    <a href="#contact" class="btn-primary">
+                        即刻合作 <span>→</span>
+                    </a>
+                    <a href="#business" class="btn-secondary">
+                        探索业务
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <h3>4+</h3>
+                        <p>核心业务板块</p>
+                    </div>
+                    <div class="stat">
+                        <h3>100+</h3>
+                        <p>合作伙伴</p>
+                    </div>
+                    <div class="stat">
+                        <h3>99%</h3>
+                        <p>客户满意度</p>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-grid">
+                    <div class="hero-grid-item">
+                        <div class="icon">📊</div>
+                        <h4>精准投流</h4>
+                        <p>巨量AD · 千川全域</p>
+                    </div>
+                    <div class="hero-grid-item">
+                        <div class="icon">🏛️</div>
+                        <h4>渠道体系</h4>
+                        <p>省级·市级分级合作</p>
+                    </div>
+                    <div class="hero-grid-item">
+                        <div class="icon">🔄</div>
+                        <h4>智能分润</h4>
+                        <p>透明·长效·共赢</p>
+                    </div>
+                    <div class="hero-grid-item">
+                        <div class="icon">🚀</div>
+                        <h4>全程扶持</h4>
+                        <p>0基础轻松入局</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT / 品牌初心 ===== -->
+    <section id="about">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag"><span class="dot"></span> 品牌初心</div>
+                <h2 class="section-title">
+                    让教育增长 <span class="highlight">更简单、更精准</span>
+                </h2>
+                <p class="section-sub">
+                    当下教育行业竞争日趋激烈，传统获客成本高、流量不精准、转化链路断裂、渠道管理混乱等问题，
+                    成为众多教育机构发展的核心痛点。
+                </p>
+            </div>
+            <div class="about-grid">
+                <div class="about-text">
+                    <p>
+                        <strong>智统引擎</strong> 立足行业痛点，打破传统教育运营壁垒，
+                        深度融合 <strong>人工智能技术 + 全域流量运营</strong> 双核心能力，
+                        摒弃粗放式营销模式，以数据驱动精准获客，以标准化体系赋能合作商户，
+                        助力中小型教育机构、创业从业者低成本入局 AI 教育蓝海市场。
+                    </p>
+                    <p>
+                        我们始终坚守 <strong>专业、合规、共赢、长效</strong> 的品牌理念，
+                        不做短期流量泡沫，只做可持续的商业增长，
+                        用成熟的行业模式、落地的运营方案、完善的扶持体系，
+                        陪伴每一位合作伙伴稳步成长。
+                    </p>
+                </div>
+                <div class="about-cards">
+                    <div class="about-card">
+                        <span class="emoji">🎯</span>
+                        <h5>数据驱动</h5>
+                        <p>精准获客，告别盲目投放</p>
+                    </div>
+                    <div class="about-card">
+                        <span class="emoji">⚡</span>
+                        <h5>技术融合</h5>
+                        <p>AI + 全域流量双核驱动</p>
+                    </div>
+                    <div class="about-card">
+                        <span class="emoji">🤝</span>
+                        <h5>长效共赢</h5>
+                        <p>不做泡沫，只做可持续增长</p>
+                    </div>
+                    <div class="about-card">
+                        <span class="emoji">🛡️</span>
+                        <h5>合规运营</h5>
+                        <p>标准化体系，杜绝行业乱象</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BUSINESS / 核心业务 ===== -->
+    <section id="business">
+        <div class="container">
+            <div class="section-header text-center">
+                <div class="section-tag" style="margin-left:auto;margin-right:auto;"><span class="dot"></span> 核心业务</div>
+                <h2 class="section-title">
+                    全域生态布局 <span class="highlight">全链路赋能</span>
+                </h2>
+                <p class="section-sub centered">
+                    依托巨量引擎官方服务商完整体系，搭建闭环式 AI 教育商业生态
+                </p>
+            </div>
+            <div class="business-grid">
+                <!-- 1 -->
+                <div class="business-card">
+                    <span class="icon">📈</span>
+                    <span class="badge">全域精准投流</span>
+                    <h4>解锁高效获客</h4>
+                    <p>深耕巨量 AD 信息流、千川全域投放体系，针对 AI 课程、智能教育、技能培训等垂直品类定制专属策略。</p>
+                    <ul>
+                        <li>大数据用户画像精准筛选</li>
+                        <li>降低获客成本，提升表单转化率</li>
+                        <li>每一分流量都精准落地</li>
+                    </ul>
+                </div>
+                <!-- 2 -->
+                <div class="business-card">
+                    <span class="icon">📋</span>
+                    <span class="badge">分级渠道体系</span>
+                    <h4>标准化合规运营</h4>
+                    <p>建立完善的省级、市级服务商分级合作体系，权责清晰、模式透明、合规规范。</p>
+                    <ul>
+                        <li>资质审核 · 权限划分 · 区域保护</li>
+                        <li>全程标准化管理</li>
+                        <li>稳定、公平、可持续的创业环境</li>
+                    </ul>
+                </div>
+                <!-- 3 -->
+                <div class="business-card">
+                    <span class="icon">💰</span>
+                    <span class="badge">智能分润模式</span>
+                    <h4>长效共赢生态</h4>
+                    <p>搭建成熟、透明、可落地的课程分润体系，打通流量、转化、分销、复购全链路。</p>
+                    <ul>
+                        <li>自动化数据统计 · 可视化收益</li>
+                        <li>高效结算机制</li>
+                        <li>流量变现 · 运营有回报 · 长期可增值</li>
+                    </ul>
+                </div>
+                <!-- 4 -->
+                <div class="business-card">
+                    <span class="icon">🧭</span>
+                    <span class="badge">全程落地扶持</span>
+                    <h4>零基础轻松入局</h4>
+                    <p>针对行业新手、教育创业者、传统机构转型用户，提供一站式落地扶持服务。</p>
+                    <ul>
+                        <li>投放策略 · 账号运营 · 素材模板</li>
+                        <li>渠道管理培训 · 售后答疑对接</li>
+                        <li>从 0 到 1 手把手落地</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STRENGTH / 品牌实力 ===== -->
+    <section id="strength">
+        <div class="container">
+            <div class="section-header text-center">
+                <div class="section-tag" style="margin-left:auto;margin-right:auto;"><span class="dot"></span> 品牌实力</div>
+                <h2 class="section-title">
+                    技术赋能 <span class="highlight">专业立身</span>
+                </h2>
+                <p class="section-sub centered">
+                    区别于普通流量运营团队，智统引擎兼具 AI 技术研发能力 + 全域商业运营能力
+                </p>
+            </div>
+            <div class="strength-grid">
+                <div class="strength-card">
+                    <div class="num">8+</div>
+                    <h5>年行业深耕</h5>
+                    <p>互联网流量运营 · 人工智能应用 · 教育商业模式</p>
+                </div>
+                <div class="strength-card">
+                    <div class="num">100%</div>
+                    <h5>定制化服务</h5>
+                    <p>一行业一方案，一客户一定制，拒绝模板化</p>
+                </div>
+                <div class="strength-card">
+                    <div class="num">🏆</div>
+                    <h5>口碑领先</h5>
+                    <p>正规企业化运营，合规透明，合作伙伴信赖之选</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== VISION / 未来愿景 ===== -->
+    <section id="vision">
+        <div class="container">
+            <div class="vision-wrap">
+                <div class="content">
+                    <div class="section-tag"><span class="dot"></span> 未来愿景</div>
+                    <h2 class="section-title">
+                        聚力共生 <span class="highlight">共创教育新未来</span>
+                    </h2>
+                    <p>
+                        AI 教育，是时代风口，更是长期赛道。未来，广西智统引擎科技将持续深耕 AI 教育数字化领域，
+                        持续迭代投放技术、优化渠道生态、完善扶持体系，持续打通
+                        <strong>“技术 + 流量 + 课程 + 渠道 + 分润”</strong> 全产业链布局。
+                    </p>
+                    <div class="vision-tags">
+                        <span>🌐 技术迭代</span>
+                        <span>📊 渠道生态</span>
+                        <span>🤝 扶持体系</span>
+                        <span>🚀 全产业链</span>
+                    </div>
+                    <div class="vision-footer">
+                        <div class="tagline">
+                            <span>智启万象，统驭未来</span> · 以引擎之力，赋能教育新增长
+                        </div>
+                        <div class="copy">
+                            广西智统引擎科技有限公司 · 与您携手，共赴 AI 教育新蓝海
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT / 合作咨询 ===== -->
+    <section id="contact" style="padding-top: 20px; padding-bottom: 40px;">
+        <div class="container">
+            <div class="vision-wrap" style="background: var(--card-bg); border-radius: var(--radius-md); padding: 40px 32px; text-align: center;">
+                <div class="content">
+                    <div class="section-tag" style="margin-left:auto;margin-right:auto;"><span class="dot"></span> 合作咨询</div>
+                    <h2 class="section-title" style="font-size: clamp(1.6rem, 3vw, 2.4rem);">
+                        面向全国招募 <span class="highlight">城市合作伙伴</span>
+                    </h2>
+                    <p style="color: var(--text-muted); max-width: 560px; margin: 0 auto 28px; font-size: 1rem; line-height: 1.7;">
+                        携手广大教育从业者、创业者，借力 AI 时代红利，把握数字化增长机遇，
+                        共生共长、聚力前行。
+                    </p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
+                        <a href="#" class="btn-primary">立即咨询合作</a>
+                        <a href="#" class="btn-secondary">📞 400-xxx-xxxx</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                © 2026 <span class="brand">广西智统引擎科技有限公司</span> · 智启新境，数引未来
+            </p>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ---- Mobile Toggle ----
+        const toggle = document.getElementById('mobileToggle');
+        const nav = document.getElementById('navLinks');
+
+        toggle.addEventListener('click', () => {
+            toggle.classList.toggle('active');
+            nav.classList.toggle('open');
+        });
+
+        // Close nav on link click (mobile)
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                toggle.classList.remove('active');
+                nav.classList.remove('open');
+            });
+        });
+
+        // ---- Header scroll effect ----
+        const header = document.getElementById('header');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (scrollY > 60) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            lastScroll = scrollY;
+        });
+
+        // ---- Smooth anchor scroll (no-jump) ----
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                const targetEl = document.querySelector(targetId);
+                if (targetEl) {
+                    e.preventDefault();
+                    const offsetTop = targetEl.offsetTop - 80;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ---- Intersection Observer: fade-in cards (optional enhancement) ----
+        const cards = document.querySelectorAll('.business-card, .strength-card, .about-card, .hero-grid-item');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // ---- Also observe vision wrap ----
+        const visionWrap = document.querySelector('.vision-wrap');
+        if (visionWrap) {
+            visionWrap.style.opacity = '0';
+            visionWrap.style.transform = 'translateY(20px)';
+            visionWrap.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            const visionObs = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            visionObs.observe(visionWrap);
+        }
+    </script>
+
+</body>
+</html>
