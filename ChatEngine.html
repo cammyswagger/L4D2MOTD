@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>广西智统引擎科技 · AI教育全域数字化赋能</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <!-- 引入 mammoth.js 用于 docx 解析 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- 引入 PDF.js 用于 PDF 解析 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #0B1A33;
+            --primary-light: #1A3150;
+            --accent: #3B82F6;
+            --accent-light: #60A5FA;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --gradient-main: linear-gradient(145deg, #0B1A33 0%, #132B4A 100%);
+            --gradient-accent: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            --text-white: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-dark: #0F172A;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --shadow-soft: 0 20px 60px -12px rgba(0, 0, 0, 0.6);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --radius-lg: 32px;
+            --radius-md: 20px;
+            --radius-sm: 12px;
+            --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --chat-width: 440px;
+            --chat-min-width: 340px;
+            --chat-max-width: 800px;
+            --chat-header-height: 64px;
+            --chat-footer-height: 80px;
+        }
+
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font); background: var(--primary); color: var(--text-white); line-height: 1.6; overflow-x: hidden; }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+
+        /* ===== UTILITY ===== */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-light);
+            background: rgba(59, 130, 246, 0.12); padding: 6px 16px; border-radius: 100px;
+            border: 1px solid rgba(59, 130, 246, 0.15); backdrop-filter: blur(4px); margin-bottom: 16px;
+        }
+        .section-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(0.8); } }
+        .section-title { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 20px; }
+        .section-title .highlight { background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .section-sub { font-size: 1.1rem; color: var(--text-muted); max-width: 640px; line-height: 1.7; }
+        .section-sub.centered { margin: 0 auto; text-align: center; }
+        .text-center { text-align: center; }
+
+        /* ===== GLOW ORBS ===== */
+        .glow-orb {
+            position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
+            opacity: 0.3; animation: float-orb 20s infinite alternate ease-in-out;
+        }
+        .glow-orb--1 { width: 600px; height: 600px; top: -10%; right: -10%; background: #3B82F6; opacity: 0.12; }
+        .glow-orb--2 { width: 500px; height: 500px; bottom: -5%; left: -8%; background: #8B5CF6; opacity: 0.08; animation-delay: -6s; }
+        .glow-orb--3 { width: 400px; height: 400px; top: 40%; left: 50%; transform: translateX(-50%); background: #06B6D4; opacity: 0.05; animation-delay: -12s; }
+        @keyframes float-orb {
+            0% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(30px,-40px) scale(1.1); }
+            66% { transform: translate(-20px,30px) scale(0.9); }
+            100% { transform: translate(10px,-10px) scale(1.05); }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 16px 0;
+            background: rgba(11,26,51,0.72); backdrop-filter: blur(20px) saturate(1.4);
+            border-bottom: 1px solid rgba(255,255,255,0.05); transition: var(--transition);
+        }
+        .header.scrolled { background: rgba(11,26,51,0.92); box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
+        .header .container { display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-white); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em; }
+        .logo-icon { width: 42px; height: 42px; background: var(--gradient-accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; color: #fff; flex-shrink: 0; box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+        .logo span { background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); position: relative; cursor: pointer; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gradient-accent); transition: var(--transition); }
+        .nav-links a:hover { color: var(--text-white); }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-cta { background: var(--gradient-accent); color: #fff !important; padding: 8px 24px; border-radius: 100px; font-weight: 600; font-size: 0.8rem; transition: var(--transition); box-shadow: 0 4px 16px rgba(59,130,246,0.25); }
+        .nav-cta::after { display: none !important; }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(59,130,246,0.4); color: #fff !important; }
+
+        .nav-chat-btn {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-white) !important; padding: 8px 20px; border-radius: 100px;
+            font-weight: 500; font-size: 0.8rem; transition: var(--transition); cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .nav-chat-btn:hover { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); transform: translateY(-2px); color: #fff !important; }
+        .nav-chat-btn .dot-online { width: 8px; height: 8px; border-radius: 50%; background: #22D3EE; display: inline-block; animation: pulse-dot 1.8s infinite; }
+
+        .mobile-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: transparent; border: none; }
+        .mobile-toggle span { width: 28px; height: 2px; background: var(--text-white); border-radius: 4px; transition: var(--transition); }
+        .mobile-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+        .mobile-toggle.active span:nth-child(2) { opacity: 0; }
+        .mobile-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+        /* ===== HERO ===== */
+        .hero { padding: 140px 0 80px; position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; }
+        .hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.15); padding: 6px 18px 6px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--accent-light); margin-bottom: 24px; backdrop-filter: blur(4px); }
+        .hero-badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: #22D3EE; animation: pulse-dot 1.8s infinite; }
+        .hero h1 { font-size: clamp(2.6rem, 6.5vw, 4.2rem); font-weight: 800; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 24px; }
+        .hero h1 .highlight { background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.15rem; color: var(--text-muted); max-width: 520px; line-height: 1.8; margin-bottom: 36px; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+        .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--gradient-accent); color: #fff; padding: 14px 36px; border-radius: 100px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: var(--transition); box-shadow: 0 4px 24px rgba(59,130,246,0.3); border: none; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(59,130,246,0.45); }
+        .btn-secondary { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); color: var(--text-white); padding: 14px 36px; border-radius: 100px; font-weight: 500; font-size: 0.95rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.08); transition: var(--transition); backdrop-filter: blur(4px); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); transform: translateY(-3px); }
+
+        .hero-visual { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 480px; }
+        .hero-grid-item { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 24px 20px; transition: var(--transition); text-align: center; }
+        .hero-grid-item:hover { transform: translateY(-6px); border-color: rgba(59,130,246,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .hero-grid-item .icon { font-size: 2rem; margin-bottom: 8px; }
+        .hero-grid-item h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+        .hero-grid-item p { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+
+        .hero-stats { display: flex; gap: 40px; margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .hero-stats .stat h3 { font-size: 1.8rem; font-weight: 700; background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-stats .stat p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+
+        /* ===== SECTION COMMON ===== */
+        section { padding: 80px 0; position: relative; z-index: 1; }
+        section:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .section-header { margin-bottom: 56px; }
+
+        /* ===== ABOUT ===== */
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+        .about-text p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 16px; }
+        .about-text p strong { color: var(--text-white); }
+        .about-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .about-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 24px 20px; transition: var(--transition); backdrop-filter: blur(4px); }
+        .about-card:hover { border-color: rgba(59,130,246,0.25); transform: translateY(-4px); box-shadow: var(--shadow-card); }
+        .about-card .emoji { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+        .about-card h5 { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .about-card p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+
+        /* ===== BUSINESS ===== */
+        .business-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; }
+        .business-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 32px 28px; transition: var(--transition); backdrop-filter: blur(4px); position: relative; overflow: hidden; }
+        .business-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-accent); opacity: 0; transition: var(--transition); }
+        .business-card:hover { border-color: rgba(59,130,246,0.2); transform: translateY(-6px); box-shadow: var(--shadow-card); }
+        .business-card:hover::before { opacity: 1; }
+        .business-card .icon { font-size: 2.2rem; margin-bottom: 12px; display: block; }
+        .business-card .badge { display: inline-block; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-light); background: rgba(59,130,246,0.1); padding: 2px 12px; border-radius: 100px; margin-bottom: 10px; }
+        .business-card h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+        .business-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px; }
+        .business-card ul { list-style: none; padding: 0; margin: 0; }
+        .business-card ul li { font-size: 0.85rem; color: var(--text-muted); padding: 4px 0; padding-left: 20px; position: relative; }
+        .business-card ul li::before { content: '▹'; position: absolute; left: 0; color: var(--accent); }
+
+        /* ===== STRENGTH ===== */
+        .strength-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+        .strength-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 36px 28px; text-align: center; transition: var(--transition); backdrop-filter: blur(4px); }
+        .strength-card:hover { border-color: rgba(59,130,246,0.2); transform: translateY(-6px); box-shadow: var(--shadow-card); }
+        .strength-card .num { font-size: 2.8rem; font-weight: 800; background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 8px; }
+        .strength-card h5 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+        .strength-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+        /* ===== VISION ===== */
+        .vision-wrap { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 56px 48px; backdrop-filter: blur(4px); position: relative; overflow: hidden; }
+        .vision-wrap::after { content: ''; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(59,130,246,0.06), transparent 70%); border-radius: 50%; pointer-events: none; }
+        .vision-wrap .content { position: relative; z-index: 1; }
+        .vision-wrap .section-title { font-size: clamp(1.8rem,4vw,2.8rem); }
+        .vision-wrap p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; max-width: 640px; }
+        .vision-tags { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+        .vision-tags span { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.1); padding: 6px 20px; border-radius: 100px; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); transition: var(--transition); }
+        .vision-tags span:hover { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.2); color: var(--text-white); }
+        .vision-footer { margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; }
+        .vision-footer .tagline { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
+        .vision-footer .tagline span { background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .vision-footer .copy { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* ===== CONTACT ===== */
+        #contact { padding-top: 20px; padding-bottom: 40px; }
+
+        /* ===== FOOTER ===== */
+        .footer { padding: 40px 0 28px; border-top: 1px solid rgba(255,255,255,0.04); text-align: center; }
+        .footer p { font-size: 0.8rem; color: var(--text-muted); }
+        .footer .brand { font-weight: 600; color: var(--text-white); }
+
+        /* ================================================================ */
+        /* ===== CHAT SIDEBAR ===== */
+        /* ================================================================ */
+        .chat-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998;
+            opacity: 0; visibility: hidden; transition: opacity 0.35s ease, visibility 0.35s ease;
+            backdrop-filter: blur(4px);
+        }
+        .chat-overlay.open { opacity: 1; visibility: visible; }
+
+        .chat-sidebar {
+            position: fixed; top: 0; right: 0; 
+            width: var(--chat-width); 
+            min-width: var(--chat-min-width);
+            max-width: var(--chat-max-width);
+            height: 100vh;
+            background: #141c2b; z-index: 9999; transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.6); display: flex; flex-direction: column;
+            border-left: 1px solid rgba(255,255,255,0.06);
+        }
+        .chat-sidebar.open { transform: translateX(0); }
+
+        .resize-handle {
+            position: absolute; left: -6px; top: 0; width: 12px; height: 100%;
+            cursor: ew-resize; z-index: 10;
+            background: transparent;
+            transition: background 0.2s;
+        }
+        .resize-handle:hover,
+        .resize-handle.active {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        .resize-handle::after {
+            content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: 3px; height: 40px; border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            transition: background 0.2s;
+        }
+        .resize-handle:hover::after,
+        .resize-handle.active::after {
+            background: var(--accent-light);
+        }
+
+        .chat-header {
+            flex-shrink: 0; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: space-between;
+            min-height: var(--chat-header-height); background: rgba(20,28,43,0.95); backdrop-filter: blur(12px);
+        }
+        .chat-header-left { display: flex; align-items: center; gap: 12px; }
+        .chat-header-left .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; color: #fff; flex-shrink: 0; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+        .chat-header-left .title { font-weight: 600; font-size: 1rem; color: var(--text-white); }
+        .chat-header-left .status { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .chat-header-left .status .dot { width: 6px; height: 6px; border-radius: 50%; background: #22D3EE; display: inline-block; animation: pulse-dot 1.8s infinite; }
+        .chat-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,0.06); color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
+        .chat-close:hover { background: rgba(255,255,255,0.12); color: var(--text-white); transform: rotate(90deg); }
+
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 20px 16px 12px; display: flex; flex-direction: column; gap: 12px;
+            background: rgba(11,26,51,0.3);
+        }
+        .chat-messages .msg {
+            max-width: 92%; padding: 12px 16px; border-radius: 14px; line-height: 1.6; font-size: 0.9rem;
+            white-space: pre-wrap; word-break: break-word; animation: fadeInMsg 0.3s ease;
+        }
+        .chat-messages .msg.user { align-self: flex-end; background: var(--gradient-accent); color: #fff; border-bottom-right-radius: 4px; }
+        .chat-messages .msg.ai { align-self: flex-start; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); color: var(--text-white); border-bottom-left-radius: 4px; position: relative; }
+        .chat-messages .msg.ai .copy-btn {
+            float: right; background: rgba(255,255,255,0.06); color: var(--text-muted);
+            padding: 2px 10px; font-size: 0.65rem; border-radius: 4px; margin-left: 12px;
+            cursor: pointer; border: none; transition: var(--transition); font-family: var(--font);
+        }
+        .chat-messages .msg.ai .copy-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-white); }
+
+        .chat-messages .msg-img {
+            max-width: 280px; max-height: 280px; border-radius: 10px; margin-top: 8px;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: var(--transition);
+            display: block; object-fit: contain;
+        }
+        .chat-messages .msg-img:hover { transform: scale(1.02); border-color: var(--accent); }
+
+        /* 用户消息中的文件附件卡片 */
+        .msg .file-attachment {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px; padding: 4px 12px 4px 8px;
+            margin-top: 6px; cursor: pointer; transition: var(--transition);
+            font-size: 0.8rem; color: var(--text-white);
+        }
+        .msg .file-attachment:hover { background: rgba(255,255,255,0.15); border-color: var(--accent); }
+        .msg .file-attachment .file-icon { font-size: 1rem; }
+        .msg .file-attachment .file-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        @keyframes fadeInMsg { from { opacity:0; transform:translateY(10px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+        /* ---- 工具栏 ---- */
+        .chat-toolbar {
+            flex-shrink: 0; padding: 8px 16px 4px; display: flex; flex-wrap: wrap; gap: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(20,28,43,0.6);
+            align-items: center;
+        }
+        .tool-btn {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-muted); padding: 4px 12px; border-radius: 100px;
+            font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 4px; font-family: var(--font);
+            white-space: nowrap;
+        }
+        .tool-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-white); }
+        .tool-btn .icon { font-size: 0.9rem; }
+        .tool-btn.active {
+            background: rgba(59,130,246,0.2); border-color: var(--accent); color: var(--accent-light);
+            box-shadow: 0 0 12px rgba(59,130,246,0.1);
+        }
+        .tool-btn.active:hover { background: rgba(59,130,246,0.3); }
+        .tool-divider {
+            width: 1px; height: 20px; background: rgba(255,255,255,0.08);
+            margin: 0 4px;
+        }
+
+        /* ---- 文件预览区（输入框上方） ---- */
+        .file-preview-wrap {
+            flex-shrink: 0; padding: 6px 12px 0; display: flex; flex-wrap: wrap; gap: 8px;
+            min-height: 0; max-height: 120px; overflow-y: auto;
+            background: rgba(20,28,43,0.4);
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .file-preview-wrap:empty { display: none; }
+        .file-preview-item {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; padding: 4px 8px 4px 10px;
+            font-size: 0.75rem; color: var(--text-muted);
+            transition: var(--transition);
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-preview-item .file-icon { font-size: 0.9rem; flex-shrink: 0; }
+        .file-preview-item .file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+        .file-preview-item .file-size { font-size: 0.6rem; opacity: 0.6; flex-shrink: 0; }
+        .file-preview-item .file-remove {
+            background: transparent; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 0.9rem; padding: 0 2px; transition: var(--transition);
+            line-height: 1;
+        }
+        .file-preview-item .file-remove:hover { color: #f87171; }
+
+        .chat-footer {
+            flex-shrink: 0; padding: 12px 16px 16px; border-top: 1px solid rgba(255,255,255,0.06);
+            background: rgba(20,28,43,0.95); backdrop-filter: blur(12px);
+            display: flex; flex-direction: column;
+        }
+        .chat-input-wrap {
+            display: flex; gap: 8px; align-items: flex-end;
+            background: rgba(255,255,255,0.04); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+            padding: 6px 8px 6px 10px; transition: var(--transition);
+        }
+        .chat-input-wrap:focus-within { border-color: rgba(59,130,246,0.4); box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+        .chat-input-wrap textarea {
+            flex: 1; background: transparent; border: none; outline: none; color: var(--text-white);
+            font-size: 0.9rem; resize: none; padding: 8px 0; min-height: 40px; max-height: 120px;
+            font-family: var(--font); line-height: 1.5;
+        }
+        .chat-input-wrap textarea::placeholder { color: var(--text-muted); }
+
+        .file-btn {
+            flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.06); color: var(--text-muted); font-size: 1.1rem;
+            cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .file-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-white); }
+        .file-btn.has-file { color: var(--accent-light); background: rgba(59,130,246,0.15); }
+
+        .send-btn {
+            flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; border: none;
+            background: var(--gradient-accent); color: #fff; font-size: 1.1rem; cursor: pointer;
+            transition: var(--transition); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+        }
+        .send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(59,130,246,0.35); }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .chat-actions { display: flex; justify-content: flex-end; margin-top: 8px; gap: 12px; }
+        .chat-actions button { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; cursor: pointer; transition: var(--transition); padding: 2px 8px; border-radius: 4px; font-family: var(--font); }
+        .chat-actions button:hover { color: var(--text-white); background: rgba(255,255,255,0.04); }
+        .chat-actions .clear-btn:hover { color: #f87171; }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        .file-preview-wrap::-webkit-scrollbar { width: 3px; }
+        .file-preview-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+        /* ===== FILE PREVIEW MODAL ===== */
+        .file-preview-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10001;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px);
+            padding: 40px;
+        }
+        .file-preview-modal.open { display: flex; }
+        .file-preview-modal .preview-box {
+            background: #141c2b; border-radius: var(--radius-md);
+            max-width: 90vw; max-height: 90vh; width: 100%; height: 80vh;
+            display: flex; flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .file-preview-modal .preview-header {
+            padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        .file-preview-modal .preview-header .title {
+            font-weight: 600; font-size: 0.9rem; color: var(--text-white);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .file-preview-modal .preview-header .close-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.2rem; cursor: pointer; transition: var(--transition);
+            padding: 4px 8px; border-radius: 4px;
+        }
+        .file-preview-modal .preview-header .close-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-white); }
+        .file-preview-modal .preview-body {
+            flex: 1; overflow: auto; padding: 16px;
+            background: #0d1420;
+        }
+        .file-preview-modal .preview-body pre {
+            margin: 0; white-space: pre-wrap; word-break: break-all;
+            font-family: 'Courier New', monospace; font-size: 0.85rem;
+            color: #d4d4d4; line-height: 1.6;
+        }
+        .file-preview-modal .preview-body iframe {
+            width: 100%; height: 100%; border: none; background: #fff;
+            border-radius: 4px;
+        }
+        .file-preview-modal .preview-body .pdf-container {
+            width: 100%; height: 100%; overflow: auto;
+        }
+        .file-preview-modal .preview-body .pdf-container canvas {
+            display: block; margin: 0 auto;
+            max-width: 100%;
+        }
+
+        /* ===== IMAGE MODAL ===== */
+        .img-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none;
+            align-items: center; justify-content: center; z-index: 10000; cursor: pointer;
+        }
+        .img-modal img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width:1024px) {
+            .hero .container { grid-template-columns:1fr; text-align:center; }
+            .hero p { margin:0 auto; }
+            .hero-actions { justify-content:center; }
+            .hero-stats { justify-content:center; }
+            .hero-grid { max-width:380px; margin:0 auto; }
+            .about-grid { grid-template-columns:1fr; }
+            .about-cards { grid-template-columns:1fr 1fr; }
+            .business-grid { grid-template-columns:1fr 1fr; }
+            .strength-grid { grid-template-columns:repeat(3,1fr); }
+        }
+        @media (max-width:768px) {
+            .nav-links {
+                position:fixed; top:0; right:-100%; width:70%; max-width:300px; height:100vh;
+                background:var(--primary-light); flex-direction:column; justify-content:center; gap:24px;
+                padding:40px; transition:var(--transition); border-left:1px solid rgba(255,255,255,0.06);
+                backdrop-filter:blur(20px);
+            }
+            .nav-links.open { right:0; }
+            .mobile-toggle { display:flex; z-index:1001; }
+            .hero { padding:120px 0 60px; min-height:auto; }
+            .hero h1 { font-size:2.2rem; }
+            .hero-grid { grid-template-columns:1fr 1fr; max-width:320px; }
+            .hero-stats { flex-wrap:wrap; gap:24px; justify-content:center; }
+            .about-cards { grid-template-columns:1fr; }
+            .business-grid { grid-template-columns:1fr; }
+            .strength-grid { grid-template-columns:1fr 1fr; }
+            .vision-wrap { padding:32px 24px; }
+            .vision-footer { flex-direction:column; text-align:center; }
+            section { padding:56px 0; }
+            .section-header { margin-bottom:36px; }
+            .chat-sidebar { width:100%; max-width:100%; }
+            .chat-header-left .title { font-size:0.9rem; }
+            .chat-messages .msg-img { max-width:200px; max-height:200px; }
+            .chat-toolbar { padding:6px 12px 2px; }
+            .tool-btn { font-size:0.65rem; padding:3px 10px; }
+            .resize-handle { display: none; }
+            .file-btn { width:32px; height:32px; font-size:1rem; }
+            .send-btn { width:36px; height:36px; font-size:1rem; }
+            .file-preview-item { max-width:150px; font-size:0.7rem; }
+            .file-preview-modal .preview-box { max-width:95vw; max-height:95vh; height:70vh; }
+        }
+        @media (max-width:480px) {
+            .hero-grid { grid-template-columns:1fr 1fr; gap:10px; }
+            .hero-grid-item { padding:16px 12px; }
+            .hero-grid-item .icon { font-size:1.4rem; }
+            .strength-grid { grid-template-columns:1fr; }
+            .btn-primary, .btn-secondary { width:100%; justify-content:center; }
+            .hero-actions { flex-direction:column; width:100%; }
+            .container { padding:0 16px; }
+            .chat-sidebar { width:100%; max-width:100%; border-left:none; }
+            .chat-messages { padding:14px 12px 8px; }
+            .chat-messages .msg { max-width:96%; font-size:0.85rem; padding:10px 14px; }
+            .chat-messages .msg-img { max-width:160px; max-height:160px; }
+            .chat-footer { padding:10px 12px 14px; }
+            .chat-input-wrap { padding:4px 6px 4px 8px; gap:6px; }
+            .chat-input-wrap textarea { font-size:0.85rem; min-height:36px; }
+            .file-btn { width:28px; height:28px; font-size:0.9rem; }
+            .send-btn { width:32px; height:32px; font-size:0.9rem; }
+            .chat-toolbar { padding:4px 8px 2px; }
+            .tool-btn { font-size:0.6rem; padding:2px 8px; }
+            .resize-handle { display: none; }
+            .file-preview-item { max-width:120px; font-size:0.65rem; }
+            .file-preview-modal .preview-box { max-width:98vw; max-height:98vh; height:60vh; }
+            .file-preview-modal .preview-body { padding:8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== GLOW ORBS ===== -->
+    <div class="glow-orb glow-orb--1"></div>
+    <div class="glow-orb glow-orb--2"></div>
+    <div class="glow-orb glow-orb--3"></div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="header">
+        <div class="container">
+            <a href="#" class="logo">
+                <div class="logo-icon">智</div>
+                广西<span>智统引擎</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#about">品牌初心</a></li>
+                <li><a href="#business">核心业务</a></li>
+                <li><a href="#strength">品牌实力</a></li>
+                <li><a href="#vision">未来愿景</a></li>
+                <li><a href="#contact" class="nav-cta">合作咨询</a></li>
+                <li>
+                    <a class="nav-chat-btn" id="chatToggleBtn">
+                        <span class="dot-online"></span>
+                        智能客服
+                    </a>
+                </li>
+            </ul>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="菜单">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge"><span class="pulse"></span> 智启新境 · 数引未来</div>
+                <h1>深耕 <span class="highlight">AI 教育</span><br />全域数字化赋能</h1>
+                <p>依托巨量生态全域流量优势，聚焦 AI 教育垂直赛道，以技术为基石、以流量为核心、以赋能为初心，打造西南地区极具专业度与公信力的 AI 教育数字化服务商。</p>
+                <div class="hero-actions">
+                    <a href="#contact" class="btn-primary">即刻合作 <span>→</span></a>
+                    <a href="#business" class="btn-secondary">探索业务</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><h3>4+</h3><p>核心业务板块</p></div>
+                    <div class="stat"><h3>100+</h3><p>合作伙伴</p></div>
+                    <div class="stat"><h3>99%</h3><p>客户满意度</p></div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-grid">
+                    <div class="hero-grid-item"><div class="icon">📊</div><h4>精准投流</h4><p>巨量AD · 千川全域</p></div>
+                    <div class="hero-grid-item"><div class="icon">🏛️</div><h4>渠道体系</h4><p>省级·市级分级合作</p></div>
+                    <div class="hero-grid-item"><div class="icon">🔄</div><h4>智能分润</h4><p>透明·长效·共赢</p></div>
+                    <div class="hero-grid-item"><div class="icon">🚀</div><h4>全程扶持</h4><p>0基础轻松入局</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag"><span class="dot"></span> 品牌初心</div>
+                <h2 class="section-title">让教育增长 <span class="highlight">更简单、更精准</span></h2>
+                <p class="section-sub">当下教育行业竞争日趋激烈，传统获客成本高、流量不精准、转化链路断裂、渠道管理混乱等问题，成为众多教育机构发展的核心痛点。</p>
+            </div>
+            <div class="about-grid">
+                <div class="about-text">
+                    <p><strong>智统引擎</strong> 立足行业痛点，打破传统教育运营壁垒，深度融合 <strong>人工智能技术 + 全域流量运营</strong> 双核心能力，摒弃粗放式营销模式，以数据驱动精准获客，以标准化体系赋能合作商户，助力中小型教育机构、创业从业者低成本入局 AI 教育蓝海市场。</p>
+                    <p>我们始终坚守 <strong>专业、合规、共赢、长效</strong> 的品牌理念，不做短期流量泡沫，只做可持续的商业增长，用成熟的行业模式、落地的运营方案、完善的扶持体系，陪伴每一位合作伙伴稳步成长。</p>
+                </div>
+                <div class="about-cards">
+                    <div class="about-card"><span class="emoji">🎯</span><h5>数据驱动</h5><p>精准获客，告别盲目投放</p></div>
+                    <div class="about-card"><span class="emoji">⚡</span><h5>技术融合</h5><p>AI + 全域流量双核驱动</p></div>
+                    <div class="about-card"><span class="emoji">🤝</span><h5>长效共赢</h5><p>不做泡沫，只做可持续增长</p></div>
+                    <div class="about-card"><span class="emoji">🛡️</span><h5>合规运营</h5><p>标准化体系，杜绝行业乱象</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BUSINESS ===== -->
+    <section id="business">
+        <div class="container">
+            <div class="section-header text-center">
+                <div class="section-tag" style="margin:0 auto;"><span class="dot"></span> 核心业务</div>
+                <h2 class="section-title">全域生态布局 <span class="highlight">全链路赋能</span></h2>
+                <p class="section-sub centered">依托巨量引擎官方服务商完整体系，搭建闭环式 AI 教育商业生态</p>
+            </div>
+            <div class="business-grid">
+                <div class="business-card"><span class="icon">📈</span><span class="badge">全域精准投流</span><h4>解锁高效获客</h4><p>深耕巨量 AD 信息流、千川全域投放体系，针对 AI 课程、智能教育、技能培训等垂直品类定制专属策略。</p><ul><li>大数据用户画像精准筛选</li><li>降低获客成本，提升表单转化率</li><li>每一分流量都精准落地</li></ul></div>
+                <div class="business-card"><span class="icon">📋</span><span class="badge">分级渠道体系</span><h4>标准化合规运营</h4><p>建立完善的省级、市级服务商分级合作体系，权责清晰、模式透明、合规规范。</p><ul><li>资质审核 · 权限划分 · 区域保护</li><li>全程标准化管理</li><li>稳定、公平、可持续的创业环境</li></ul></div>
+                <div class="business-card"><span class="icon">💰</span><span class="badge">智能分润模式</span><h4>长效共赢生态</h4><p>搭建成熟、透明、可落地的课程分润体系，打通流量、转化、分销、复购全链路。</p><ul><li>自动化数据统计 · 可视化收益</li><li>高效结算机制</li><li>流量变现 · 运营有回报 · 长期可增值</li></ul></div>
+                <div class="business-card"><span class="icon">🧭</span><span class="badge">全程落地扶持</span><h4>零基础轻松入局</h4><p>针对行业新手、教育创业者、传统机构转型用户，提供一站式落地扶持服务。</p><ul><li>投放策略 · 账号运营 · 素材模板</li><li>渠道管理培训 · 售后答疑对接</li><li>从 0 到 1 手把手落地</li></ul></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STRENGTH ===== -->
+    <section id="strength">
+        <div class="container">
+            <div class="section-header text-center">
+                <div class="section-tag" style="margin:0 auto;"><span class="dot"></span> 品牌实力</div>
+                <h2 class="section-title">技术赋能 <span class="highlight">专业立身</span></h2>
+                <p class="section-sub centered">区别于普通流量运营团队，智统引擎兼具 AI 技术研发能力 + 全域商业运营能力</p>
+            </div>
+            <div class="strength-grid">
+                <div class="strength-card"><div class="num">8+</div><h5>年行业深耕</h5><p>互联网流量运营 · 人工智能应用 · 教育商业模式</p></div>
+                <div class="strength-card"><div class="num">100%</div><h5>定制化服务</h5><p>一行业一方案，一客户一定制，拒绝模板化</p></div>
+                <div class="strength-card"><div class="num">🏆</div><h5>口碑领先</h5><p>正规企业化运营，合规透明，合作伙伴信赖之选</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== VISION ===== -->
+    <section id="vision">
+        <div class="container">
+            <div class="vision-wrap">
+                <div class="content">
+                    <div class="section-tag"><span class="dot"></span> 未来愿景</div>
+                    <h2 class="section-title">聚力共生 <span class="highlight">共创教育新未来</span></h2>
+                    <p>AI 教育，是时代风口，更是长期赛道。未来，广西智统引擎科技将持续深耕 AI 教育数字化领域，持续迭代投放技术、优化渠道生态、完善扶持体系，持续打通 <strong>“技术 + 流量 + 课程 + 渠道 + 分润”</strong> 全产业链布局。</p>
+                    <div class="vision-tags"><span>🌐 技术迭代</span><span>📊 渠道生态</span><span>🤝 扶持体系</span><span>🚀 全产业链</span></div>
+                    <div class="vision-footer">
+                        <div class="tagline"><span>智启万象，统驭未来</span> · 以引擎之力，赋能教育新增长</div>
+                        <div class="copy">广西智统引擎科技有限公司 · 与您携手，共赴 AI 教育新蓝海</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" style="padding-top:20px;padding-bottom:40px;">
+        <div class="container">
+            <div class="vision-wrap" style="background:var(--card-bg); border-radius:var(--radius-md); padding:40px 32px; text-align:center;">
+                <div class="content">
+                    <div class="section-tag" style="margin:0 auto;"><span class="dot"></span> 合作咨询</div>
+                    <h2 class="section-title" style="font-size:clamp(1.6rem,3vw,2.4rem);">面向全国招募 <span class="highlight">城市合作伙伴</span></h2>
+                    <p style="color:var(--text-muted); max-width:560px; margin:0 auto 28px; font-size:1rem; line-height:1.7;">携手广大教育从业者、创业者，借力 AI 时代红利，把握数字化增长机遇，共生共长、聚力前行。</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center;">
+                        <a href="#" class="btn-primary">立即咨询合作</a>
+                        <a href="#" class="btn-secondary">📞 400-xxx-xxxx</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container"><p>© 2026 <span class="brand">广西智统引擎科技有限公司</span> · 智启新境，数引未来</p></div>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- ===== 智能客服 侧边栏 ===== -->
+    <!-- ============================================================ -->
+
+    <!-- 遮罩 -->
+    <div class="chat-overlay" id="chatOverlay"></div>
+
+    <!-- 侧边栏 -->
+    <div class="chat-sidebar" id="chatSidebar">
+        <div class="resize-handle" id="resizeHandle"></div>
+
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="avatar">AI</div>
+                <div>
+                    <div class="title">智能客服 · 智统引擎</div>
+                    <div class="status"><span class="dot"></span> 在线 · 支持 DOCX/PDF</div>
+                </div>
+            </div>
+            <button class="chat-close" id="chatCloseBtn">✕</button>
+        </div>
+
+        <!-- 消息区域 -->
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <!-- 工具栏 -->
+        <div class="chat-toolbar" id="chatToolbar">
+            <button class="tool-btn" id="imageGenBtn"><span class="icon">🖼️</span> 图片生成</button>
+            <span class="tool-divider"></span>
+            <button class="tool-btn" id="reasoningToggle"><span class="icon">🧠</span> 深度思考</button>
+            <button class="tool-btn" id="searchToggle"><span class="icon">🌐</span> 智能搜索</button>
+            <span style="font-size:0.6rem;color:var(--text-muted);opacity:0.5;margin-left:auto;">拖拽左侧边缘调整大小</span>
+        </div>
+
+        <!-- 文件预览区（输入框上方） -->
+        <div class="file-preview-wrap" id="filePreviewWrap"></div>
+
+        <!-- 底部输入 -->
+        <div class="chat-footer">
+            <div class="chat-input-wrap">
+                <button class="file-btn" id="fileUploadBtn" title="上传文件 (支持 txt, docx, pdf, 等)">📎</button>
+                <input type="file" id="fileInput" accept=".txt,.md,.json,.csv,.log,.xml,.html,.js,.py,.css,.sh,.yml,.yaml,.toml,.ini,.cfg,.docx,.pdf" multiple style="display:none;">
+                <textarea id="chatInput" rows="1" placeholder="输入问题… 或粘贴/拖拽文件，自动解析并发送"></textarea>
+                <button class="send-btn" id="chatSendBtn">➤</button>
+            </div>
+            <div class="chat-actions">
+                <button class="clear-btn" id="chatClearBtn">清空对话</button>
+                <span style="color:var(--text-muted);font-size:0.65rem;opacity:0.5;">图源 pollinations.ai</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片放大模态框 -->
+    <div class="img-modal" id="imgModal">
+        <img id="modalImg" alt="放大图片" />
+    </div>
+
+    <!-- 文件内容预览模态框 -->
+    <div class="file-preview-modal" id="filePreviewModal">
+        <div class="preview-box">
+            <div class="preview-header">
+                <span class="title">📄 <span id="filePreviewTitle">文件预览</span></span>
+                <button class="close-btn" id="filePreviewClose">✕</button>
+            </div>
+            <div class="preview-body" id="filePreviewBody">
+                <!-- 内容动态渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== SCRIPTS ===== -->
+    <!-- ============================================================ -->
+
+    <script>
+        // =============================================================
+        // 1. 原有页面交互
+        // =============================================================
+        (function() {
+            const toggle = document.getElementById('mobileToggle');
+            const nav = document.getElementById('navLinks');
+            toggle.addEventListener('click', () => { toggle.classList.toggle('active'); nav.classList.toggle('open'); });
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => { toggle.classList.remove('active'); nav.classList.remove('open'); });
+            });
+
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 60) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const targetEl = document.querySelector(targetId);
+                    if (targetEl) {
+                        e.preventDefault();
+                        window.scrollTo({ top: targetEl.offsetTop - 80, behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const cards = document.querySelectorAll('.business-card, .strength-card, .about-card, .hero-grid-item');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+            const visionWrap = document.querySelector('.vision-wrap');
+            if (visionWrap) {
+                visionWrap.style.opacity = '0';
+                visionWrap.style.transform = 'translateY(20px)';
+                visionWrap.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                const vObs = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                }, { threshold: 0.1 });
+                vObs.observe(visionWrap);
+            }
+        })();
+
+        // =============================================================
+        // 2. 智能客服核心 + 自动解析 & 自动发送
+        // =============================================================
+        (function() {
+            'use strict';
+
+            // ---- 配置 ----
+            const API_URL = 'http://127.0.0.1:3000/api/chat';
+            const TOKEN = 'MY_SECRET_TOKEN_2026';
+            const IMAGE_GEN_URL = 'https://image.pollinations.ai/prompt/';
+            const STORAGE_KEY = 'chat_messages_cache';
+            const WIDTH_STORAGE_KEY = 'chat_sidebar_width';
+
+            // ---- 公司信息 ----
+            const COMPANY_INFO = `
+        📋 **广西智统引擎科技有限公司 · 工商基础信息**
+
+        ✅ **主体全称**：广西智统引擎科技有限公司
+        📅 **成立时间**：2026-06-29
+        📍 **注册地址**：南宁市青秀区长湖路 63 号凤翔中学多功能综合楼 3 楼 301 房 - c01
+        👤 **法定代表人 / 唯一股东**：黄勇强（自然人独资，100% 持股）
+        💰 **注册资本**：100 万元人民币
+        🏢 **企业状态**：存续（正常经营）
+        📂 **行业**：软件和信息技术服务业
+        📜 **统一社会信用代码**：91450103MAKGPYYY1W
+
+        ---
+        如需更多信息，欢迎随时咨询！ 🤝
+        `;
+
+            const COMPANY_KEYWORDS = [
+                '广西智统引擎科技有限公司', '智统引擎科技有限公司', '智统引擎科技公司',
+                '智统引擎公司', '智统引擎科技', '智统引擎', '公司详情', '公司信息',
+                '工商信息', '企业信息', '公司简介'
+            ];
+
+            // ---- DOM ----
+            const sidebar = document.getElementById('chatSidebar');
+            const overlay = document.getElementById('chatOverlay');
+            const messagesEl = document.getElementById('chatMessages');
+            const inputEl = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('chatSendBtn');
+            const clearBtn = document.getElementById('chatClearBtn');
+            const closeBtn = document.getElementById('chatCloseBtn');
+            const toggleBtn = document.getElementById('chatToggleBtn');
+            const imgModal = document.getElementById('imgModal');
+            const modalImg = document.getElementById('modalImg');
+            const imageGenBtn = document.getElementById('imageGenBtn');
+            const reasoningToggle = document.getElementById('reasoningToggle');
+            const searchToggle = document.getElementById('searchToggle');
+            const resizeHandle = document.getElementById('resizeHandle');
+            const fileUploadBtn = document.getElementById('fileUploadBtn');
+            const fileInput = document.getElementById('fileInput');
+            const filePreviewWrap = document.getElementById('filePreviewWrap');
+            const filePreviewModal = document.getElementById('filePreviewModal');
+            const filePreviewBody = document.getElementById('filePreviewBody');
+            const filePreviewTitle = document.getElementById('filePreviewTitle');
+            const filePreviewClose = document.getElementById('filePreviewClose');
+
+            // ---- 状态 ----
+            let messages = [];
+            let isLoading = false;
+            let isReasoning = false;
+            let isSearch = false;
+            let isResizing = false;
+            let pendingFiles = []; // { name, size, content }
+
+            // ---- 存储操作 ----
+            function saveMessages() {
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); } catch (e) {}
+            }
+            function loadMessages() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) { const parsed = JSON.parse(data); if (Array.isArray(parsed)) { messages = parsed; return true; } }
+                } catch (e) {}
+                return false;
+            }
+            function clearStorage() { try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} }
+
+            // ---- 模式状态持久化 ----
+            function saveModes() {
+                try {
+                    localStorage.setItem('chat_reasoning', JSON.stringify(isReasoning));
+                    localStorage.setItem('chat_search', JSON.stringify(isSearch));
+                } catch (e) {}
+            }
+            function loadModes() {
+                try {
+                    const r = localStorage.getItem('chat_reasoning');
+                    if (r !== null) isReasoning = JSON.parse(r);
+                    const s = localStorage.getItem('chat_search');
+                    if (s !== null) isSearch = JSON.parse(s);
+                } catch (e) {}
+                updateModeUI();
+            }
+            function updateModeUI() {
+                reasoningToggle.classList.toggle('active', isReasoning);
+                searchToggle.classList.toggle('active', isSearch);
+            }
+
+            // ---- 工具 ----
+            function scrollToBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + 'B';
+                if (bytes < 1048576) return (bytes / 1024).toFixed(1) + 'KB';
+                return (bytes / 1048576).toFixed(1) + 'MB';
+            }
+
+            // ---- 图片放大 ----
+            function openImage(src) {
+                modalImg.src = src;
+                imgModal.style.display = 'flex';
+            }
+            imgModal.addEventListener('click', () => { imgModal.style.display = 'none'; });
+
+            // ---- 文件预览模态框 ----
+            function openFilePreview(file) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                filePreviewTitle.textContent = file.name;
+                filePreviewBody.innerHTML = '';
+
+                if (ext === 'pdf') {
+                    const container = document.createElement('div');
+                    container.className = 'pdf-container';
+                    filePreviewBody.appendChild(container);
+                    const pdfjsLib = window.pdfjsLib;
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+                    pdfjsLib.getDocument({ data: file.content }).promise.then(pdf => {
+                        const totalPages = pdf.numPages;
+                        for (let i = 1; i <= totalPages; i++) {
+                            pdf.getPage(i).then(page => {
+                                const viewport = page.getViewport({ scale: 1.5 });
+                                const canvas = document.createElement('canvas');
+                                const context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+                                container.appendChild(canvas);
+                                const renderContext = {
+                                    canvasContext: context,
+                                    viewport: viewport
+                                };
+                                page.render(renderContext);
+                            });
+                        }
+                    }).catch(err => {
+                        filePreviewBody.innerHTML = '<div style="color:#f87171;">无法解析 PDF 文件：' + err.message + '</div>';
+                    });
+                } else if (ext === 'docx') {
+                    mammoth.convertToHtml({ arrayBuffer: file.content })
+                        .then(result => {
+                            const div = document.createElement('div');
+                            div.style.color = '#d4d4d4';
+                            div.style.fontFamily = 'sans-serif';
+                            div.innerHTML = result.value;
+                            filePreviewBody.appendChild(div);
+                        })
+                        .catch(err => {
+                            filePreviewBody.innerHTML = '<div style="color:#f87171;">无法解析 DOCX 文件：' + err.message + '</div>';
+                        });
+                } else if (ext === 'html' || ext === 'htm') {
+                    const iframe = document.createElement('iframe');
+                    iframe.srcdoc = file.content;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    filePreviewBody.appendChild(iframe);
+                } else {
+                    const pre = document.createElement('pre');
+                    pre.textContent = file.content;
+                    filePreviewBody.appendChild(pre);
+                }
+                filePreviewModal.classList.add('open');
+            }
+
+            function closeFilePreview() {
+                filePreviewModal.classList.remove('open');
+                filePreviewBody.innerHTML = '';
+            }
+            filePreviewClose.addEventListener('click', closeFilePreview);
+            filePreviewModal.addEventListener('click', (e) => {
+                if (e.target === filePreviewModal) closeFilePreview();
+            });
+
+            // ---- 关键词检测 ----
+            function containsCompanyKeyword(text) {
+                if (!text) return false;
+                const lower = text.toLowerCase();
+                for (const kw of COMPANY_KEYWORDS) {
+                    if (lower.includes(kw.toLowerCase())) return true;
+                }
+                return false;
+            }
+
+            // ---- 渲染消息 ----
+            function renderMessages() {
+                if (messages.length === 0) {
+                    messagesEl.innerHTML = `
+                        <div class="msg ai" style="align-self:flex-start;">
+                            👋 您好！我是智统引擎的智能客服助手。<br>
+                            💡 输入 <strong>「生成图片 描述」</strong> 即可生成图片<br>
+                            💼 询问 <strong>「公司信息」</strong> 获取工商详情<br>
+                            🧠 点击 <strong>「深度思考」</strong> 获得更深入推理<br>
+                            🌐 点击 <strong>「智能搜索」</strong> 获取实时联网信息<br>
+                            📎 上传文件后 <strong>自动解析并发送</strong>，AI 会总结内容<br>
+                            <span style="font-size:0.75rem;color:var(--text-muted);">💾 对话记录已自动保存</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                messagesEl.innerHTML = '';
+                messages.forEach((msg) => {
+                    const div = document.createElement('div');
+                    div.className = `msg ${msg.role}`;
+
+                    if (msg.role === 'assistant' && msg.type === 'image') {
+                        const img = document.createElement('img');
+                        img.src = msg.content;
+                        img.className = 'msg-img';
+                        img.alt = msg.alt || 'AI生成图片';
+                        img.addEventListener('click', () => openImage(msg.content));
+                        div.appendChild(img);
+                        if (msg.alt) {
+                            const caption = document.createElement('div');
+                            caption.style.cssText = 'font-size:0.75rem;color:var(--text-muted);margin-top:4px;';
+                            caption.textContent = `🎨 ${msg.alt}`;
+                            div.appendChild(caption);
+                        }
+                    } else if (msg.role === 'assistant') {
+                        const copyBtn = document.createElement('button');
+                        copyBtn.className = 'copy-btn';
+                        copyBtn.textContent = '复制';
+                        copyBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            try {
+                                await navigator.clipboard.writeText(msg.content);
+                                copyBtn.textContent = '✓ 已复制';
+                                setTimeout(() => { copyBtn.textContent = '复制'; }, 1500);
+                            } catch (_) {
+                                const ta = document.createElement('textarea');
+                                ta.value = msg.content;
+                                document.body.appendChild(ta);
+                                ta.select();
+                                document.execCommand('copy');
+                                ta.remove();
+                                copyBtn.textContent = '✓ 已复制';
+                                setTimeout(() => { copyBtn.textContent = '复制'; }, 1500);
+                            }
+                        });
+                        div.appendChild(copyBtn);
+                        const span = document.createElement('span');
+                        span.style.whiteSpace = 'pre-wrap';
+                        span.textContent = msg.content;
+                        div.appendChild(span);
+                    } else {
+                        // 用户消息
+                        const contentSpan = document.createElement('span');
+                        contentSpan.style.whiteSpace = 'pre-wrap';
+                        contentSpan.textContent = msg.content || ' ';
+                        div.appendChild(contentSpan);
+
+                        if (msg.files && msg.files.length > 0) {
+                            msg.files.forEach((file) => {
+                                const attachment = document.createElement('div');
+                                attachment.className = 'file-attachment';
+                                const icon = file.name.match(/\.(docx?|pdf)$/i) ? '📄' : '📃';
+                                attachment.innerHTML = `
+                                    <span class="file-icon">${icon}</span>
+                                    <span class="file-name">${file.name}</span>
+                                    <span style="font-size:0.65rem;opacity:0.5;">${formatFileSize(file.size)}</span>
+                                `;
+                                attachment.addEventListener('click', () => {
+                                    if (msg.fileContents && msg.fileContents[file.name]) {
+                                        openFilePreview({ name: file.name, content: msg.fileContents[file.name] });
+                                    } else {
+                                        alert('文件内容已丢失，无法预览');
+                                    }
+                                });
+                                div.appendChild(attachment);
+                            });
+                        }
+                    }
+                    messagesEl.appendChild(div);
+                });
+                scrollToBottom();
+            }
+
+            // ---- 添加用户消息 ----
+            function addUserMessage(content, files) {
+                const msgObj = { role: 'user', content: content || '' };
+                if (files && files.length > 0) {
+                    msgObj.files = files.map(f => ({ name: f.name, size: f.size }));
+                    msgObj.fileContents = {};
+                    files.forEach(f => { msgObj.fileContents[f.name] = f.content; });
+                }
+                messages.push(msgObj);
+                renderMessages();
+                saveMessages();
+            }
+
+            // ---- 添加 AI 消息 ----
+            function addAIMessageDirect(content) {
+                messages.push({ role: 'assistant', content });
+                renderMessages();
+                saveMessages();
+            }
+            function addImageMessage(imageUrl, prompt) {
+                messages.push({ role: 'assistant', type: 'image', content: imageUrl, alt: prompt });
+                renderMessages();
+                saveMessages();
+            }
+
+            // ---- 流式 AI 消息 ----
+            function addAIMessageStream() {
+                const placeholder = { role: 'assistant', content: '' };
+                messages.push(placeholder);
+                const div = document.createElement('div');
+                div.className = 'msg ai';
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.textContent = '复制';
+                copyBtn.style.display = 'none';
+                copyBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    try {
+                        await navigator.clipboard.writeText(placeholder.content);
+                        copyBtn.textContent = '✓ 已复制';
+                        setTimeout(() => { copyBtn.textContent = '复制'; }, 1500);
+                    } catch (_) {
+                        const ta = document.createElement('textarea');
+                        ta.value = placeholder.content;
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                        copyBtn.textContent = '✓ 已复制';
+                        setTimeout(() => { copyBtn.textContent = '复制'; }, 1500);
+                    }
+                });
+                const contentSpan = document.createElement('span');
+                contentSpan.style.whiteSpace = 'pre-wrap';
+                div.appendChild(copyBtn);
+                div.appendChild(contentSpan);
+                messagesEl.appendChild(div);
+                return {
+                    contentSpan,
+                    copyBtn,
+                    update: (text) => { placeholder.content = text; contentSpan.textContent = text; scrollToBottom(); },
+                    finish: () => {
+                        copyBtn.style.display = 'inline-block';
+                        if (!placeholder.content.trim()) {
+                            placeholder.content = '（未能获取有效回复）';
+                            contentSpan.textContent = placeholder.content;
+                        }
+                        scrollToBottom();
+                        saveMessages();
+                    }
+                };
+            }
+
+            // ---- 提取图片描述 ----
+            function extractImagePrompt(text) {
+                let match = text.match(/^生成图片\s+(.+)/i);
+                if (match) return match[1].trim();
+                match = text.match(/^\/img\s+(.+)/i);
+                if (match) return match[1].trim();
+                return null;
+            }
+
+            // =============================================================
+            // ---- 文件解析 ----
+            // =============================================================
+            function parseFileContent(file) {
+                return new Promise((resolve, reject) => {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    if (ext === 'docx') {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const arrayBuffer = e.target.result;
+                            mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+                                .then(result => resolve(result.value))
+                                .catch(err => reject(err));
+                        };
+                        reader.onerror = reject;
+                        reader.readAsArrayBuffer(file);
+                    } else if (ext === 'pdf') {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const arrayBuffer = e.target.result;
+                            const pdfjsLib = window.pdfjsLib;
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+                            pdfjsLib.getDocument({ data: arrayBuffer }).promise
+                                .then(pdf => {
+                                    const totalPages = pdf.numPages;
+                                    const pagePromises = [];
+                                    for (let i = 1; i <= totalPages; i++) {
+                                        pagePromises.push(pdf.getPage(i).then(page => {
+                                            return page.getTextContent().then(textContent => {
+                                                return textContent.items.map(item => item.str).join(' ');
+                                            });
+                                        }));
+                                    }
+                                    return Promise.all(pagePromises);
+                                })
+                                .then(pageTexts => resolve(pageTexts.join('\n')))
+                                .catch(err => reject(err));
+                        };
+                        reader.onerror = reject;
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsText(file);
+                    }
+                });
+            }
+
+            // =============================================================
+            // ---- 文件管理（预览区 + 自动发送） ----
+            // =============================================================
+            function renderFilePreviews() {
+                filePreviewWrap.innerHTML = '';
+                pendingFiles.forEach((f, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'file-preview-item';
+                    const icon = document.createElement('span');
+                    icon.className = 'file-icon';
+                    icon.textContent = f.name.match(/\.(docx?|pdf)$/i) ? '📄' : '📃';
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'file-name';
+                    nameSpan.textContent = f.name;
+                    const sizeSpan = document.createElement('span');
+                    sizeSpan.className = 'file-size';
+                    sizeSpan.textContent = formatFileSize(f.size);
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'file-remove';
+                    removeBtn.textContent = '×';
+                    removeBtn.title = '移除文件';
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        pendingFiles.splice(idx, 1);
+                        renderFilePreviews();
+                        updateFileBtnState();
+                    });
+                    item.appendChild(icon);
+                    item.appendChild(nameSpan);
+                    item.appendChild(sizeSpan);
+                    item.appendChild(removeBtn);
+                    filePreviewWrap.appendChild(item);
+                });
+                filePreviewWrap.style.display = pendingFiles.length > 0 ? 'flex' : 'none';
+            }
+
+            function updateFileBtnState() {
+                if (pendingFiles.length > 0) {
+                    fileUploadBtn.classList.add('has-file');
+                } else {
+                    fileUploadBtn.classList.remove('has-file');
+                }
+            }
+
+            // ---- 添加文件（解析完成后自动发送） ----
+            function addFiles(files) {
+                const MAX_SIZE = 10 * 1024 * 1024;
+                const supportedExts = ['.txt', '.md', '.json', '.csv', '.log', '.xml', '.html', '.js', '.py', '.css', '.sh', '.yml', '.yaml', '.toml', '.ini', '.cfg', '.conf', '.env', '.gitignore', '.docx', '.pdf', '.doc'];
+                let validFiles = [];
+                for (let file of files) {
+                    const ext = '.' + file.name.split('.').pop().toLowerCase();
+                    if (!supportedExts.includes(ext)) {
+                        alert(`⚠️ 文件 "${file.name}" 类型暂不支持，请上传常见文档或文本文件。`);
+                        continue;
+                    }
+                    if (file.size > MAX_SIZE) {
+                        alert(`⚠️ 文件 "${file.name}" 超过 10MB 限制`);
+                        continue;
+                    }
+                    validFiles.push(file);
+                }
+                if (validFiles.length === 0) return;
+
+                let parsePromises = validFiles.map(file => {
+                    return parseFileContent(file)
+                        .then(content => {
+                            return { name: file.name, size: file.size, content: content };
+                        })
+                        .catch(err => {
+                            alert(`解析文件 "${file.name}" 失败: ${err.message}`);
+                            return null;
+                        });
+                });
+
+                Promise.all(parsePromises)
+                    .then(results => {
+                        const parsed = results.filter(r => r !== null);
+                        if (parsed.length === 0) return;
+                        // 添加到待发送列表
+                        parsed.forEach(r => pendingFiles.push(r));
+                        renderFilePreviews();
+                        updateFileBtnState();
+                        // 自动发送（仅文件内容，不带用户文本）
+                        // 但先检查是否正在加载，避免冲突
+                        if (!isLoading) {
+                            // 延迟一小段时间，让界面更新
+                            setTimeout(() => {
+                                sendMessage(''); // 空文本，表示只发文件
+                            }, 100);
+                        }
+                        inputEl.focus();
+                    });
+            }
+
+            function clearPendingFiles() {
+                pendingFiles = [];
+                renderFilePreviews();
+                updateFileBtnState();
+            }
+
+            // ---- 文件上传事件 ----
+            fileUploadBtn.addEventListener('click', () => { fileInput.click(); });
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    addFiles(e.target.files);
+                }
+                fileInput.value = '';
+            });
+
+            // ---- 粘贴文件 ----
+            document.addEventListener('paste', (e) => {
+                if (!sidebar.classList.contains('open')) return;
+                const items = e.clipboardData.items;
+                let fileList = [];
+                for (let item of items) {
+                    if (item.kind === 'file') {
+                        fileList.push(item.getAsFile());
+                    }
+                }
+                if (fileList.length > 0) {
+                    e.preventDefault();
+                    addFiles(fileList);
+                }
+            });
+
+            // ---- 拖拽文件 ----
+            let dragCounter = 0;
+            document.addEventListener('dragenter', (e) => {
+                if (!sidebar.classList.contains('open')) return;
+                dragCounter++;
+            });
+            document.addEventListener('dragleave', (e) => {
+                if (!sidebar.classList.contains('open')) return;
+                dragCounter--;
+            });
+            document.addEventListener('dragover', (e) => {
+                if (!sidebar.classList.contains('open')) return;
+                e.preventDefault();
+            });
+            document.addEventListener('drop', (e) => {
+                if (!sidebar.classList.contains('open')) return;
+                e.preventDefault();
+                dragCounter = 0;
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    addFiles(files);
+                }
+            });
+
+            // =============================================================
+            // ---- 核心发送（支持仅文件） ----
+            // =============================================================
+            async function sendMessage(text) {
+                if (text === undefined) { text = inputEl.value.trim(); }
+                // 如果没有任何输入（文本或文件），则忽略
+                if (!text && pendingFiles.length === 0) return;
+                if (isLoading) return;
+
+                const userText = text || '';
+
+                // 1. 图片生成检测（仅当有文本且不是文件）
+                if (userText) {
+                    const prompt = extractImagePrompt(userText);
+                    if (prompt) {
+                        inputEl.value = '';
+                        inputEl.style.height = 'auto';
+                        clearPendingFiles();
+                        addUserMessage(userText);
+                        const encoded = encodeURIComponent(prompt);
+                        addImageMessage(IMAGE_GEN_URL + encoded, prompt);
+                        return;
+                    }
+                    if (/^生成图片\s*$/i.test(userText) || /^\/img\s*$/i.test(userText)) {
+                        inputEl.value = '';
+                        inputEl.style.height = 'auto';
+                        clearPendingFiles();
+                        addUserMessage(userText);
+                        const s = addAIMessageStream();
+                        s.update('请补充图片描述，例如：生成图片 一只可爱的猫');
+                        s.finish();
+                        return;
+                    }
+
+                    // 公司信息检测
+                    if (containsCompanyKeyword(userText)) {
+                        inputEl.value = '';
+                        inputEl.style.height = 'auto';
+                        clearPendingFiles();
+                        addUserMessage(userText);
+                        addAIMessageDirect(COMPANY_INFO);
+                        return;
+                    }
+                }
+
+                // 2. 普通对话（携带文件）
+                let aiMessageContent = userText;
+                let filesForUI = [];
+                let fileContentsForAI = '';
+                if (pendingFiles.length > 0) {
+                    filesForUI = pendingFiles.map(f => ({ name: f.name, size: f.size, content: f.content }));
+                    fileContentsForAI = pendingFiles.map(f =>
+                        `===== 文件: ${f.name} =====\n${f.content}\n`
+                    ).join('\n');
+                    if (userText) {
+                        aiMessageContent = userText + '\n\n' + fileContentsForAI;
+                    } else {
+                        aiMessageContent = fileContentsForAI;
+                    }
+                }
+
+                // 清空输入和预览（仅当用户主动点击发送或自动发送时清空）
+                if (!text && pendingFiles.length > 0) {
+                    // 自动发送，清空预览区
+                    clearPendingFiles();
+                } else {
+                    // 手动发送，清空输入和预览
+                    inputEl.value = '';
+                    inputEl.style.height = 'auto';
+                    clearPendingFiles();
+                }
+
+                // 添加用户消息（包含文件卡片）
+                addUserMessage(userText, filesForUI);
+
+                // 调用 AI
+                isLoading = true;
+                sendBtn.disabled = true;
+                inputEl.disabled = true;
+
+                const streamHandler = addAIMessageStream();
+                let model = 'deepseek-chat';
+                if (isReasoning) model = 'deepseek-reasoner';
+
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: TOKEN,
+                            messages: messages.filter(m => m.role !== 'assistant' || m.type !== 'image').map(m => ({ role: m.role, content: m.content })),
+                            stream: true,
+                            model: model,
+                            enable_search: isSearch
+                        })
+                    });
+
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullText = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        const chunk = decoder.decode(value, { stream: true });
+                        const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
+                        for (const line of lines) {
+                            const data = line.replace('data: ', '');
+                            if (data === '[DONE]') continue;
+                            try {
+                                const json = JSON.parse(data);
+                                const delta = json.choices?.[0]?.delta?.content;
+                                if (delta) {
+                                    fullText += delta;
+                                    streamHandler.update(fullText);
+                                }
+                            } catch (_) {}
+                        }
+                    }
+
+                    streamHandler.finish();
+                    const lastMsg = messages[messages.length - 1];
+                    if (lastMsg && lastMsg.role === 'assistant' && !lastMsg.type) {
+                        lastMsg.content = fullText || '（未收到有效回复）';
+                        saveMessages();
+                    }
+
+                } catch (err) {
+                    console.error('[Chat] 请求失败:', err);
+                    streamHandler.contentSpan.textContent = '⚠️ 服务暂时不可用，请稍后重试。';
+                    streamHandler.copyBtn.style.display = 'inline-block';
+                    const lastMsg = messages[messages.length - 1];
+                    if (lastMsg && lastMsg.role === 'assistant' && !lastMsg.type) {
+                        lastMsg.content = '⚠️ 服务暂时不可用，请稍后重试。';
+                        saveMessages();
+                    }
+                }
+
+                isLoading = false;
+                sendBtn.disabled = false;
+                inputEl.disabled = false;
+                inputEl.focus();
+                scrollToBottom();
+            }
+
+            // ---- 清空对话 ----
+            function clearChat() {
+                messages = [];
+                renderMessages();
+                inputEl.value = '';
+                inputEl.style.height = 'auto';
+                isLoading = false;
+                sendBtn.disabled = false;
+                inputEl.disabled = false;
+                clearPendingFiles();
+                clearStorage();
+            }
+
+            // ---- 开关侧边栏 ----
+            function openChat() {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => inputEl.focus(), 200);
+                if (messages.length === 0) renderMessages();
+            }
+            function closeChat() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+
+            // ---- 模式切换 ----
+            function toggleReasoning() {
+                isReasoning = !isReasoning;
+                updateModeUI();
+                saveModes();
+                inputEl.placeholder = isReasoning ? '🧠 深度思考模式已开启...' : '输入问题… 或粘贴/拖拽文件';
+                console.log(`[模式] 深度思考 ${isReasoning ? '开启' : '关闭'}`);
+            }
+            function toggleSearch() {
+                isSearch = !isSearch;
+                updateModeUI();
+                saveModes();
+                console.log(`[模式] 智能搜索 ${isSearch ? '开启' : '关闭'}`);
+            }
+
+            // ---- 图片生成按钮 ----
+            function handleImageGen() {
+                if (!sidebar.classList.contains('open')) openChat();
+                inputEl.value = '生成图片 ';
+                inputEl.focus();
+                const len = inputEl.value.length;
+                inputEl.setSelectionRange(len, len);
+                inputEl.dispatchEvent(new Event('input'));
+            }
+
+            // ---- 拖动调整大小 ----
+            function initResize() {
+                let startX, startWidth;
+                function onMouseDown(e) {
+                    isResizing = true;
+                    startX = e.clientX;
+                    startWidth = sidebar.getBoundingClientRect().width;
+                    document.body.style.userSelect = 'none';
+                    document.body.style.cursor = 'ew-resize';
+                    resizeHandle.classList.add('active');
+                    e.preventDefault();
+                }
+                function onMouseMove(e) {
+                    if (!isResizing) return;
+                    let deltaX = startX - e.clientX;
+                    let newWidth = startWidth + deltaX;
+                    const minW = parseInt(getComputedStyle(sidebar).getPropertyValue('--chat-min-width')) || 340;
+                    const maxW = parseInt(getComputedStyle(sidebar).getPropertyValue('--chat-max-width')) || 800;
+                    newWidth = Math.min(Math.max(newWidth, minW), maxW);
+                    sidebar.style.width = newWidth + 'px';
+                    try { localStorage.setItem(WIDTH_STORAGE_KEY, String(newWidth)); } catch (e) {}
+                }
+                function onMouseUp() {
+                    if (isResizing) {
+                        isResizing = false;
+                        document.body.style.userSelect = '';
+                        document.body.style.cursor = '';
+                        resizeHandle.classList.remove('active');
+                    }
+                }
+                resizeHandle.addEventListener('mousedown', onMouseDown);
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+                try {
+                    const savedWidth = localStorage.getItem(WIDTH_STORAGE_KEY);
+                    if (savedWidth) {
+                        const w = parseInt(savedWidth);
+                        const minW = parseInt(getComputedStyle(sidebar).getPropertyValue('--chat-min-width')) || 340;
+                        const maxW = parseInt(getComputedStyle(sidebar).getPropertyValue('--chat-max-width')) || 800;
+                        if (w >= minW && w <= maxW) sidebar.style.width = w + 'px';
+                    }
+                } catch (e) {}
+            }
+
+            // ---- 事件绑定 ----
+            toggleBtn.addEventListener('click', (e) => { e.preventDefault(); openChat(); });
+            closeBtn.addEventListener('click', closeChat);
+            overlay.addEventListener('click', closeChat);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && sidebar.classList.contains('open')) closeChat();
+            });
+
+            sendBtn.addEventListener('click', () => sendMessage());
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            });
+            inputEl.addEventListener('input', () => {
+                inputEl.style.height = 'auto';
+                inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+            });
+            clearBtn.addEventListener('click', clearChat);
+            imageGenBtn.addEventListener('click', handleImageGen);
+            reasoningToggle.addEventListener('click', toggleReasoning);
+            searchToggle.addEventListener('click', toggleSearch);
+
+            // ---- 初始化 ----
+            loadModes();
+            const hasCache = loadMessages();
+            renderMessages();
+            initResize();
+            filePreviewWrap.style.display = 'none';
+            if (hasCache) {
+                console.log('[智能客服] 已恢复聊天记录，共', messages.length, '条消息');
+            } else {
+                console.log('[智能客服] 无缓存记录');
+            }
+            console.log('[智能客服] 深度思考:', isReasoning ? '开' : '关', '智能搜索:', isSearch ? '开' : '关');
+            console.log('[智能客服] 文件上传后自动解析并发送，AI 将总结内容');
+
+        })();
+    </script>
+
+</body>
+</html>
